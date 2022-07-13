@@ -2,6 +2,13 @@
 
 This template should help get you started developing with Vue 3 and TypeScript in Vite. The template uses Vue 3 `<script setup>` SFCs, check out the [script setup docs](https://v3.vuejs.org/api/sfc-script-setup.html#sfc-script-setup) to learn more.
 
+## 这是一个文档系统
+通过上传 .md 文件会自动生成文档路由，访问路由时 .md 文件会渲染成 html 格式的富文本
+
+## 启动命令
+- 前端：`npm run dev`
+- node服务：`npm run node-server`
+
 ## Recommended IDE Setup
 
 - [VS Code](https://code.visualstudio.com/) + [Volar](https://marketplace.visualstudio.com/items?itemName=Vue.volar)

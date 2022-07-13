@@ -24,8 +24,6 @@
 <script lang='ts' setup>
 import MdEditor from 'md-editor-v3'
 import { reactive } from 'vue';
-// import Europa from 'europa'
-// const europa = new Europa()
 import Turndown from 'turndown'
 interface IState {
   theme: string;
@@ -42,7 +40,6 @@ const props = defineProps({
 const state = reactive<IState>({
   theme: 'default',
   id: 'my-editor',
-  // text: europa.convert(props.content)
   text: turndown.turndown(props?.content as string)
 })
 const scrollElement: HTMLElement = document.documentElement;
