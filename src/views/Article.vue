@@ -56,21 +56,19 @@ const scrollElement: HTMLElement = document.documentElement;
     }
     .catalog {
       width: 25%;
+      border-left: 1px solid lightgray;
       .affix {
         position: sticky;
-        top: 10px;
-        max-height: calc(100vh - 80px);
-        overflow-y: auto;
+        top: 70px;
+        max-height: calc(100vh - 20px);
+        overflow: auto;
         .my-catalog {
-          height: 100%;
+          /* height: 100%; */
           margin-bottom: 1rem;
         }
       }
       .affix::-webkit-scrollbar{
-        width:0;
-      }
-      .md-catalog  {
-        height: 100%;
+        width: 0;
       }
     }
   }

@@ -2,8 +2,10 @@
 
 This template should help get you started developing with Vue 3 and TypeScript in Vite. The template uses Vue 3 `<script setup>` SFCs, check out the [script setup docs](https://v3.vuejs.org/api/sfc-script-setup.html#sfc-script-setup) to learn more.
 
-## 这是一个文档系统
+## 说明
+这是一个由 markdown 文件生成 vue页面的文档系统
 通过上传 .md 文件会自动生成文档路由，访问路由时 .md 文件会渲染成 html 格式的富文本
+**注意：由于用的 [vite](https://cn.vitejs.dev/guide/) 搭建的项目，Vite 需要 Node.js 版本 >= 14.18.0。然而，有些模板需要依赖更高的 Node 版本才能正常运行，当你的包管理器发出警告时，请注意升级你的 Node 版本。**
 
 ## 启动命令
 - 前端：`npm run dev`

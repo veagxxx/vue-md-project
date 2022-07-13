@@ -43,7 +43,7 @@ import { onMounted, ref } from 'vue';
 import Upload from './components/Upload.vue'
 import { getMenus } from '@/controller/FsController'
 import { Router, useRouter } from 'vue-router';
-const github = 'https://github.com/veagxxx/vue-md-project'
+const github: string = 'https://github.com/veagxxx/vue-md-project'
 // import { IRouteMenu } from '@/types'
 const router: Router = useRouter()
 const upload = ref(false)
