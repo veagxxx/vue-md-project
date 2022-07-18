@@ -7,7 +7,7 @@ import 'element-plus/dist/index.css'
 // Message 消息弹框样式
 import 'element-plus/theme-chalk/src/message.scss'
 import 'element-plus/theme-chalk/src/message-box.scss'
-// import 'github-markdown-css'
+import 'github-markdown-css'
 import MdEditor from 'md-editor-v3'
 import 'md-editor-v3/lib/style.css';
 const app = createApp(App)

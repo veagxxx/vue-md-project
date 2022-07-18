@@ -2,7 +2,7 @@ import { createRouter, createWebHistory, Router, RouteRecordRaw } from 'vue-rout
 import { h } from "vue"
 import { getMenus } from '@/controller/FsController'
 import Article from "@/views/Article.vue"
-import { html as Intro } from "@/doc/form.md"
+import { html as Intro } from "../../README.md"
 const modules = import.meta.glob('@/doc/**.md')
 const res: any = await getMenus()
 // console.log('xxxxxxxxxxxxxxxx', res.data, modules)
@@ -12,19 +12,19 @@ const Layout = () => import("@/layout/index.vue")
 const routes: Array<RouteRecordRaw> = [
   {
     path: '/',
-    redirect: '/form'
+    redirect: '/guide'
   },
   {
     path: '/',
     name: "Layout",
     component: Layout,
     children: [
-      // { path: "/doc", component: IntroDoc }
+      { path: "/guide", component: IntroDoc }
     ],
     meta: {
       title: "文档",
     },
-  }
+  },
 ]
 if (modules && res.data.length) {
   for (const key in res.data) {

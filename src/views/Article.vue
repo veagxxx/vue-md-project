@@ -13,7 +13,7 @@
       <div class="affix">
         <md-catalog
           :editorId="state.id"
-          :scroll-element="scrollElement"
+          :scroll-element="'.my-main'"
           :previewTheme="state.theme"
         />
       </div>
@@ -42,7 +42,7 @@ const state = reactive<IState>({
   id: 'my-editor',
   text: turndown.turndown(props?.content as string)
 })
-const scrollElement: HTMLElement = document.documentElement;
+const scrollElement: HTMLElement = document.documentElement
 </script>
 <style lang='scss' scoped>
   .my-md {
@@ -56,10 +56,10 @@ const scrollElement: HTMLElement = document.documentElement;
     }
     .catalog {
       width: 25%;
-      border-left: 1px solid lightgray;
+      border-left: 1.5px solid #eee;
       .affix {
         position: sticky;
-        top: 70px;
+        top: 10px;
         max-height: calc(100vh - 20px);
         overflow: auto;
         .my-catalog {

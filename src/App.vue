@@ -9,5 +9,7 @@ import { ElConfigProvider } from 'element-plus'
 </template>
 
 <style scoped>
-
+  html, body, #app {
+    height: 100%;
+  }
 </style>

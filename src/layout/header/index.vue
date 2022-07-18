@@ -5,6 +5,10 @@
       <span>ONE PIECE</span>
     </div>
     <div class="header-right">
+      <div class="icon-item" @click="router.push('/guide')">
+        <span>指南</span>
+        <el-icon><Stopwatch /></el-icon>
+      </div>
       <div class="icon-item" @click="handleOpenUpload">
         <span>上传</span>
         <el-icon><UploadFilled /></el-icon>
@@ -102,6 +106,7 @@ onMounted(() => {
       margin: 0px 10px;
       cursor: pointer;
       color: #36ad6a;
+      line-height: 20px;
       span {
         font-size: 16px;
       }
