@@ -5,33 +5,30 @@
       <span>ONE PIECE</span>
     </div>
     <div class="header-right">
-      <div class="icon-item" @click="router.push('/guide')">
-        <span>指南</span>
-        <el-icon><Stopwatch /></el-icon>
-      </div>
+      <el-menu
+        :default-active="route.path"
+        mode="horizontal"
+        :ellipsis="false"
+        @select="handleSelect"
+        router
+        active-text-color="#36ad6a"
+      >
+        <el-menu-item index="/guide">指南</el-menu-item>
+        <el-sub-menu>
+          <template #title>文档</template>
+          <el-menu-item  
+            v-for="(item, index) in routerMenus" 
+            :key="item.name + index" 
+            :index="item.path"
+          >
+            {{ item.name }}  
+          </el-menu-item>
+        </el-sub-menu>
+      </el-menu>
       <div class="icon-item" @click="handleOpenUpload">
         <span>上传</span>
         <el-icon><UploadFilled /></el-icon>
       </div>
-      <el-dropdown>
-        <span class="el-dropdown-link">
-          <div class="icon-item">
-            <span>文档</span>
-            <el-icon><Coin /></el-icon>
-          </div>
-        </span>
-        <template #dropdown>
-          <el-dropdown-menu>
-            <el-dropdown-item 
-              v-for="(item, index) in routerMenus" 
-              :key="item.name + index"
-              @click="selectRoute(item)"
-            >
-              {{ item.name }}
-            </el-dropdown-item>
-          </el-dropdown-menu>
-        </template>
-      </el-dropdown>
       <el-tooltip place="bottom-start" content="源码地址">
         <div class="icon-item" @click="toGitHub()">
           <span>github</span>
@@ -46,33 +43,32 @@
 import { onMounted, ref } from 'vue';
 import Upload from './components/Upload.vue'
 import { getMenus } from '@/controller/FsController'
-import { Router, useRouter } from 'vue-router';
+import { Router, useRoute, useRouter } from 'vue-router';
+const route = useRoute()
 const github: string = 'https://github.com/veagxxx/vue-md-project'
 // import { IRouteMenu } from '@/types'
 const router: Router = useRouter()
 const upload = ref(false)
 const routerMenus = ref<any>([])
 // 打开弹框
-const handleOpenUpload = () => {
+const handleOpenUpload = (): void => {
   upload.value = true
 }
 // 关闭弹框
-const handleCloseUpload = () => {
+const handleCloseUpload = (): void => {
   upload.value = false
 }
-// 菜单切换
-const selectRoute = (item: any) => {
-  // console.log('item', item)
-  router.push(item.path)
-}
 // 获取路由菜单
-const getRouterMenus = async () => {
+const getRouterMenus = async (): Promise<void> => {
   const res: any = await getMenus()
   routerMenus.value = res.data
 }
 // github源码 
-const toGitHub = () => {
+const toGitHub = (): void => {
   window.open(github)
+}
+const handleSelect = () => {
+
 }
 onMounted(() => {
   getRouterMenus()
@@ -105,10 +101,10 @@ onMounted(() => {
       font-size: 20px;
       margin: 0px 10px;
       cursor: pointer;
-      color: #36ad6a;
+      /* color: #36ad6a; */
       line-height: 20px;
       span {
-        font-size: 16px;
+        font-size: 14px;
       }
     }
   }
