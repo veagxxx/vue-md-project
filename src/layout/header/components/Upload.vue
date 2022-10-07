@@ -28,9 +28,8 @@
       :on-change="handleBeforeUpload"
     >
       <template #trigger>
-        <el-button type="primary">选择文件</el-button>
+        <el-button type="primary" :disalbed="loading">选择文件</el-button>
       </template>
-      <el-button class="ml-3" type="success" @click="submitUpload(ruleFormRef)">上传</el-button>
       <template #tip>
         <div class="el-upload__tip text-red">
           仅支持.md文件上传
@@ -40,6 +39,9 @@
     <template #footer>
       <span class="dialog-footer">
         <el-button @click="handleClose">关闭</el-button>
+        <el-button type="success" @click="submitUpload(ruleFormRef)" :disalbed="loading">
+          {{ loading ? '上传中' : '上传' }}
+        </el-button>
         <!-- <el-button type="primary">Confirm</el-button> -->
       </span>
     </template>
@@ -54,12 +56,14 @@ import { reactive, ref } from 'vue';
 import { checkRouterName, checkRouterPath } from '@/hooks'
 import { IRouter } from '@/types';
 import { uploadMdFile } from '@/controller/FsController'
+import moment from 'moment'
 const props = defineProps({
   showUpload: {
     type: Boolean,
   }
 })
 const emit = defineEmits(['closeUpload'])
+const loading = ref(false)
 const upload = ref<UploadInstance>() // 
 const fileString = ref<string | ArrayBuffer | null>('') // 文件内容
 const fileName = ref<string>('') // 文件名字
@@ -84,6 +88,7 @@ const handleExceed: UploadProps['onExceed'] = (files: File[]) => {
 // 上传
 const submitUpload = async (formEl: FormInstance | undefined) => {
   if(!formEl) return
+  loading.value = true
   await formEl.validate(async (valid, fields) => {
     if (valid) {
       if (!fileString.value || !fileName.value) return ElMessage.warning('请上传.md文件')
@@ -91,14 +96,18 @@ const submitUpload = async (formEl: FormInstance | undefined) => {
         fileString: fileString.value,
         fileName: fileName.value,
         routerName: routerForm.routerName,
-        routerPath: routerForm.routerPath
+        routerPath: routerForm.routerPath,
+        date: moment().format('YYYY-MM-DD HH:mm')
       }
       const res: any = await uploadMdFile(params)
-    } else {
-
+      if (res.data.code == 200) {
+        ElMessage.success('上传成功')
+      } else {
+        ElMessage.success('上传失败')
+      }
     }
   })
-  
+  loading.value = false
 }
 // 文件上传
 const handleBeforeUpload = (file: any) => {

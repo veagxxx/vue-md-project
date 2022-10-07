@@ -1,19 +1,15 @@
 import { IParam } from "@/types";
 import axios from "axios";
 import { ElMessage } from "element-plus";
+import http from '@/utils/axios'
 // 上传 .md 文件
 export const uploadMdFile = (params: IParam) => {
   const { fileString, fileName, routerName, routerPath } = params
   return new Promise((resolve, reject) => {
-    axios.post(
-      'http://localhost:9088/write', 
+    http.post(
+      '/write', 
       { file: fileString, fileName, routerName, routerPath }
     ).then(res => {
-      if (res.data.code == 200) {
-        ElMessage.success('上传成功')
-      } else {
-        ElMessage.success('上传失败')
-      }
       resolve(res)
     })
     .catch(err => {
@@ -34,5 +30,18 @@ export const getMenus = () => {
     .catch(err => {
       reject(err)
     })
+  })
+}
+
+/**
+ * 下载文件
+ * @param params 
+ * @returns 
+ */
+export const downloadFileApi = (params: any) => {
+  return new Promise((resolve, reject) => {
+    http.get('/download', { params: params, responseType: 'blob' })
+    .then(res => resolve(res))
+    .catch(err => reject(err))
   })
 }

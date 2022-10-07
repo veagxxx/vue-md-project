@@ -3,7 +3,7 @@ import App from './App.vue'
 import router from '@/router'
 import "@/assets/styles/index.scss"
 import * as ElementPlusIconsVue from '@element-plus/icons-vue'
-import 'element-plus/dist/index.css'
+// import 'element-plus/dist/index.css'
 // Message 消息弹框样式
 import 'element-plus/theme-chalk/src/message.scss'
 import 'element-plus/theme-chalk/src/message-box.scss'

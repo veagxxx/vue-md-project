@@ -18,9 +18,9 @@ app.all('*', (req, res, next) => {
 /**
  * 写文件
  */
- app.post('/write', (req, res) => {
+ app.post('/api/write', (req, res) => {
   // console.log('req', req.body)
-  const { file, fileName, routerName, routerPath } = req.body
+  const { file, fileName, routerName, routerPath, date } = req.body
   // 先读取路由配置 json 文件
   fs.readFile('src/menus/path.json', 'utf-8', (error, data) => {
     if (error) { 
@@ -35,13 +35,14 @@ app.all('*', (req, res, next) => {
       "name": routerName,
       "path": routerPath,
       "doc": fileName,
+      "date": date,
     }
     if (pathIndex >= 0) {
       menus.splice(pathIndex, 1, pathItem)
     } else {
       menus.push(pathItem)
     }
-    const menusString = JSON.stringify(menus)
+    const menusString = JSON.stringify(menus, null, "\t")
     // 回写 json 文件
     fs.writeFileSync('src/menus/path.json', menusString)
     // console.log(data)
@@ -60,6 +61,13 @@ app.all('*', (req, res, next) => {
     })
   })
   
+})
+// 下载文件，返回文件流
+app.get('/api/download', (req, res) => {
+  // console.log(req.query)
+  const { date, name, path, fileName } = req.query
+  const rs = fs.createReadStream(`src/doc/${fileName}`)
+  rs.pipe(res)
 })
 
 app.listen(9088, () => {

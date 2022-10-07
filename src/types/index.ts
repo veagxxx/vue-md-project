@@ -21,3 +21,11 @@ export interface IParam {
   routerName: string;
   routerPath: string;
 }
+
+export interface PathMenu {
+  date?: string;
+  name: string;
+  path: string;
+  doc?: string;
+  fileName?: string;
+}

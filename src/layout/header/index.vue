@@ -14,7 +14,8 @@
         active-text-color="#36ad6a"
       >
         <el-menu-item index="/guide">指南</el-menu-item>
-        <el-sub-menu>
+        <el-menu-item index="/statistics">统计</el-menu-item>
+        <el-sub-menu index="">
           <template #title>文档</template>
           <el-menu-item  
             v-for="(item, index) in routerMenus" 
@@ -24,6 +25,7 @@
             {{ item.name }}  
           </el-menu-item>
         </el-sub-menu>
+        <el-menu-item index="/fantastic">花里胡哨</el-menu-item>
       </el-menu>
       <div class="icon-item" @click="handleOpenUpload">
         <span>上传</span>
@@ -82,6 +84,7 @@ onMounted(() => {
     height: 100%;
     .header-left {
       width: 30%;
+      height: 100%;
       display: flex;
       align-items: center;
       font-size: 20px;
@@ -93,7 +96,10 @@ onMounted(() => {
       width: 70%;
       display: flex;
       align-items: center;
-      justify-content: right;
+      justify-content: flex-end;
+      .el-menu--horizontal {
+        border-bottom: none;
+      }
     }
     .icon-item {
       display: flex;

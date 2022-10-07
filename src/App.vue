@@ -8,8 +8,20 @@ import { ElConfigProvider } from 'element-plus'
   </el-config-provider>
 </template>
 
-<style scoped>
+<style>
   html, body, #app {
     height: 100%;
+  }
+  .purple {
+    color: #626aef;
+  }
+  .danger {
+    color: #f56c6c;
+  }
+  .warning {
+    color: #eebe77;
+  }
+  .hotpink {
+    color: hotpink;
   }
 </style>
