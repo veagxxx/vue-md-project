@@ -12,8 +12,12 @@
       :class="className" 
       :type="type" 
       :icon="icon" 
-      @click="callback"
-    >{{ text }}
+      @click="() => callback()"
+    >
+      {{ text }}
+      <template #icon>
+        <slot name="icon"></slot>
+      </template>
     </el-button>
   </el-tooltip>
 </template>

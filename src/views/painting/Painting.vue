@@ -3,7 +3,7 @@
     <el-card class="paint-card">
       <template #header>
         <div class="paint-header">
-          <div class="header-title">画图</div>
+          <div class="header-title"><DrawingBoard color="blue"/>&nbsp;画图</div>
           <el-color-picker :predefine="predefineColors" v-model="color" />
           <TooltipButton
             className="purple"
@@ -20,15 +20,12 @@
           <TooltipButton
             content="填充" 
             type="text" 
-            :icon="CoffeeCup"
-            :callback="fillCanvas"
-          ></TooltipButton>
-          <!-- <TooltipButton
-            content="毛刷" 
-            type="text" 
-            className="hotpink"
-            :icon="BrushFilled"
-          ></TooltipButton> -->
+            :callback="() => setPaintBrush(100)"
+          >
+            <template #icon>
+              <ColorFill/>
+            </template>
+          </TooltipButton>
           <TooltipButton 
             content="撤销" 
             className="warning" 
@@ -113,15 +110,24 @@
     EditPen, 
     Delete, 
     Back, 
-    CoffeeCup, 
-    BrushFilled, 
     PictureFilled, 
     Download 
   } from '@element-plus/icons-vue';
-  import { ref, onMounted, toRaw, reactive, onBeforeUnmount } from 'vue'
+  import { ref, onMounted, reactive, onBeforeUnmount } from 'vue'
   import TooltipButton from '@/components/TooltipButton.vue';
-  import { predefineColors, points } from './painting' 
-import { it } from 'element-plus/lib/locale';
+  import { 
+    predefineColors, 
+    initPoint, 
+    getFillGragh, 
+    Draw, 
+    Rectangle, 
+    Circle, 
+    getCircleData,
+    addDraw,
+Triangle, 
+  } from './painting' 
+  import DrawingBoard from '@/components/icons/DrawingBoard.vue'
+  import ColorFill from '@/components/icons/ColorFill.vue'
   const cursor = ref<string>('crosshair')
   const paintBrush = ref<number>(0) // 是否画笔
   const color = ref<string>('#000000') // 颜色
@@ -130,6 +136,7 @@ import { it } from 'element-plus/lib/locale';
   const drawing = ref<boolean>(false) // 绘画状态
   const _context = ref<any>(null) // canvas画笔对象
   const center = reactive<{x: number, y: number}>({x: 0, y: 0}) // 起点坐标
+  const fillGragh = ref<any>(null)
   // 设置画笔样式
   const setPaintBrush = (value: number) => {
     if (value === 1) {
@@ -153,37 +160,28 @@ import { it } from 'element-plus/lib/locale';
     canvas.height = dom.offsetHeight
     const ctx = canvas.getContext("2d", { willReadFrequently: true })
     _context.value = ctx
-    if (points.length) {
-      points.map((item, index) => {
-        if(item.type === 'circle') {
-          _context.value.beginPath()
-          _context.value.arc(...item.point, 0, 2 * Math.PI)
-          _context.value.strokeStyle = '#000'
-          _context.value.stroke()
-          _context.value.closePath()
-        } else if (item.type === 'rectangle') {
-          _context.value.beginPath()
-          _context.value.rect(...item.point)
-          _context.value.strokeStyle = '#000'
-          _context.value.stroke()
-          _context.value.closePath()
-        } else {
-
-        }
-      })
-    }
+    initPoint(_context.value)
     canvas.addEventListener('mousedown', (e: MouseEvent) => onMouseDown(canvas, e))
     canvas.addEventListener('mousemove', (e: MouseEvent) => onMouseMove(canvas, e))
-    canvas.addEventListener('mouseup', () => onMouseUp())
+    canvas.addEventListener('mouseup', (e: MouseEvent) => onMouseUp(canvas, e))
     canvas.addEventListener('mouseleave', () => onMouseUp())
+    canvas.addEventListener('click', (e: MouseEvent) => onMouseClick(canvas, e))
+  }
+  // 鼠标点击
+  const onMouseClick = (canvas: HTMLCanvasElement, e: MouseEvent) => {
+    if (paintBrush.value === 100) {
+      fillCanvas(canvas, fillGragh.value)
+    }
   }
   // 鼠标按下
   const onMouseDown = (canvas: HTMLCanvasElement, e: MouseEvent) => {
     drawing.value = true
-    if (drawing.value) {
+    if (drawing.value && paintBrush.value) {
       const draw = _context.value.getImageData(0, 0, canvas.width, canvas.height)
       drawArr.push(draw)
       const { left, top }  = canvas.getBoundingClientRect()
+      // 获取填充图形
+      fillGragh.value = getFillGragh([e.pageX - left, e.pageY - top], canvas)
       _context.value.beginPath()
       if (paintBrush.value === 1) {
           _context.value.moveTo(e.pageX - left, e.pageY - top)
@@ -214,16 +212,8 @@ import { it } from 'element-plus/lib/locale';
           break
         // 画圆
         case 6:
-          // 当前鼠标位置与点击位置 x 距离
-          const _x: number = e.pageX - left - center.x
-          // 当前鼠标位置与点击位置 y 距离
-          const _y: number = e.pageY - top - center.y
-          // 圆心 x (点击位置与当前鼠标位置中点坐标x)
-          const centerX: number = (2 * center.x + _x) / 2
-          // 圆心 y (点击位置与当前鼠标位置中点坐标y)
-          const centerY: number = (2 * center.y + _y) / 2
-          const radius: number = Math.sqrt((_x * _x) + (_y * _y)) / 2
-          drawCircle(canvas, centerX, centerY, radius)
+          const circle = getCircleData(canvas, e, center)
+          drawCircle(canvas, circle.centerX, circle.centerY, circle.radius)
           break
         default:
           return;
@@ -285,11 +275,11 @@ import { it } from 'element-plus/lib/locale';
     _context.value.stroke()
   }
   // 鼠标松开
-  const onMouseUp = () => {
-    if (drawing.value) {
-      _context.value.closePath()
-    }
+  const onMouseUp = (canvas?: HTMLCanvasElement, e?: MouseEvent) => {
     drawing.value = false
+    if (canvas && e) {
+      addDraw(canvas, e, paintBrush.value, center, color.value)
+    }
   }
   // 撤销
   const revokeDraw = () => {
@@ -313,11 +303,36 @@ import { it } from 'element-plus/lib/locale';
     _context.value.putImageData(drawArr[drawArr.length - 1], 0, 0)
   }
   // 填充画布
-  const fillCanvas = () => {
-    const canvas = document.getElementById('canvas') as HTMLCanvasElement
-    const ctx = canvas.getContext("2d") as CanvasRenderingContext2D
-    ctx.fillStyle = color.value
-    ctx.fillRect(0, 0, canvas.width, canvas.height)
+  const fillCanvas = (canvas: HTMLCanvasElement, graph: Draw) => {
+    _context.value.fillStyle = color.value
+    if (graph) {
+      if (graph.type === 'rectangle') {
+        _context.value.fillRect(...graph.point, (<Rectangle>graph).width, (<Rectangle>graph).height)
+      } else if (graph.type === 'circle') {
+        _context.value.arc(...graph.point, (<Circle>graph).radius, 0, Math.PI * 2)
+        _context.value.fill()
+      } else if (graph.type === 'triangle') {
+        _context.value.beginPath()        
+        if (!(<Triangle>graph).rightAngle) {
+          // 左侧角起点
+          _context.value.moveTo(graph.point[0], (<Triangle>graph).height + graph.point[1])
+          // 右侧角
+          _context.value.lineTo((<Triangle>graph).width + graph.point[0], (<Triangle>graph).height + graph.point[1])
+          // 顶角
+          _context.value.lineTo(graph.point[0] + ((<Triangle>graph).width) / 2, graph.point[1])
+        } else {
+          // 顶角起点
+          _context.value.moveTo(graph.point[0], graph.point[1])
+          // 左侧角
+          _context.value.lineTo(graph.point[0], (<Triangle>graph).height + graph.point[1])
+          // 右侧角
+          _context.value.lineTo((<Triangle>graph).width + graph.point[0], (<Triangle>graph).height + graph.point[1])
+        }
+        _context.value.fill()
+      }
+    } else {
+      // _context.value.fillRect(0, 0, canvas.width, canvas.height)
+    }
   }
   // 下载canvas图片
   const dowloadCanvas = () => {
@@ -352,7 +367,8 @@ import { it } from 'element-plus/lib/locale';
         justify-content: space-around;
         align-items: center;
         .header-title {
-          display: inline-block;
+          display: flex;
+          align-items: center;
           font-weight: bold;
           color:green;
           user-select: none;

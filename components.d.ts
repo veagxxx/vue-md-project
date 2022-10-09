@@ -7,6 +7,8 @@ export {}
 
 declare module '@vue/runtime-core' {
   export interface GlobalComponents {
+    ColorFill: typeof import('./src/components/icons/ColorFill.vue')['default']
+    DrawingBoard: typeof import('./src/components/icons/DrawingBoard.vue')['default']
     ElAside: typeof import('element-plus/es')['ElAside']
     ElBacktop: typeof import('element-plus/es')['ElBacktop']
     ElButton: typeof import('element-plus/es')['ElButton']
