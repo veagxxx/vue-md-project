@@ -221,12 +221,12 @@ export const getFillGragh = (point: number[], canvas: HTMLCanvasElement): Draw =
       const APC = getAngle(
         { x: point[0], y: point[1] }, 
         { x: startX, y: (<Triangle>points[i]).height + startY }, 
-        { x: (startX + (<Triangle>points[i]).width + startX), y: startY + startY + (<Triangle>points[i]).height }
+        { x: startX + (<Triangle>points[i]).width, y: startY + (<Triangle>points[i]).height }
       ) 
       const BPC = getAngle(
         { x: point[0], y: point[1] }, 
-        { x: (startX + (<Triangle>points[i]).width + startX) / 2, y: startY },
-        { x: (startX + (<Triangle>points[i]).width + startX), y: startY + startY + (<Triangle>points[i]).height }
+        { x: startX + (<Triangle>points[i]).width / 2, y: startY },
+        { x: startX + (<Triangle>points[i]).width, y: startY + (<Triangle>points[i]).height }
       ) 
       // 在三角形内(如果在三角形内，点 P 连接三角形三个点形成三个夹角和为 360 度)
       if (Math.round(APB + APC + BPC) === 360) {
