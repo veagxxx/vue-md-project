@@ -1,7 +1,7 @@
 <template>
   <div class="header">
     <div class="header-left">
-      <el-icon><Orange /></el-icon>
+      <el-icon><Skeleton /></el-icon>
       <span>ONE PIECE</span>
     </div>
     <div class="header-right">
@@ -46,6 +46,7 @@ import { onMounted, ref } from 'vue';
 import Upload from './components/Upload.vue'
 import { getMenus } from '@/controller/FsController'
 import { Router, useRoute, useRouter } from 'vue-router';
+import Skeleton from '@/components/icons/Skeleton.vue'
 const route = useRoute()
 const github: string = 'https://github.com/veagxxx/vue-md-project'
 // import { IRouteMenu } from '@/types'
@@ -91,6 +92,14 @@ onMounted(() => {
       margin-left: 20px;
       font-weight: 600;
       color: #36ad6a;
+      :deep(.el-icon) {
+        width: 1.5em;
+        height: 1.5em;
+        svg {
+          width: 1.5em;
+          height: 1.5em;
+        }
+      }
     }
     .header-right {
       width: 70%;
@@ -113,5 +122,6 @@ onMounted(() => {
         font-size: 14px;
       }
     }
+    
   }
 </style>

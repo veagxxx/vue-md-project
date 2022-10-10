@@ -72,6 +72,20 @@ export const points = reactive<Draw[]>([
     color: 'green',
     fill: false
   },
+  {
+    type: 'triangle',
+    point: [500, 120],
+    width: 180,
+    height: 90,
+    color: 'hotpink',
+    fill: true,
+  },
+  {
+    type: 'straightLine',
+    point: [800, 300],
+    endPoint: [1300, 350],
+    color: 'hsl(181, 100%, 37%)',
+  }
 ])
 // 初始化画布点
 export const initPoint = (ctx: CanvasRenderingContext2D) => {
@@ -89,9 +103,24 @@ export const initPoint = (ctx: CanvasRenderingContext2D) => {
         ctx.strokeStyle = item.color
         ctx.stroke()
         ctx.closePath()
+      } else if (item.type === 'triangle') {
+        ctx.beginPath()
+        ctx.moveTo(item.point[0], item.point[1] + (<Triangle>item).height)
+        ctx.lineTo(item.point[0] + (<Triangle>item).width / 2, item.point[1])
+        ctx.lineTo(item.point[0] + (<Triangle>item).width, item.point[1] + (<Triangle>item).height)
+        ctx.strokeStyle = item.color
+        ctx.stroke()
+        ctx.closePath()
       } else {
-  
+        ctx.beginPath()
+        ctx.moveTo(...item.point)
+        ctx.lineTo(...(<Line>item).endPoint)
+        ctx.strokeStyle = item.color
+        ctx.stroke()
+        ctx.closePath()
       }
+      ctx.fillStyle = item.color;
+      (<Circle | Triangle | Rectangle>item).fill && ctx.fill()
     })
   }
 }
@@ -114,7 +143,7 @@ export const addDraw = (
   canvas: HTMLCanvasElement, 
   e: MouseEvent, 
   paintBrush: number, 
-  startPoint: any,
+  startPoint: Point,
   color: string,
 ) => {
   const { left, top }  = canvas.getBoundingClientRect()
@@ -161,8 +190,8 @@ export const addDraw = (
     draw && points.push(draw)
 }
 /**
- * 判断点是否在圆内
- * @param startPoint 圆心
+ * 判断点是否在圆内，根据圆的标准方程(x - a)² + (y - b)² = r²，圆心坐标(a, b)，半径 r
+ * @param startPoint 圆心坐标
  * @param radius 半径
  * @param point 点
  * @returns (x - startPoint.x)² + (y - startPoint.y)² <= radius²

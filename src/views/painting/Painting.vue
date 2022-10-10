@@ -41,10 +41,10 @@
             :callback="clearCanvas"
           ></TooltipButton>
           <TooltipButton 
-            content="图形" 
+            content="形状" 
             className="purple" 
             type="text" 
-            :icon="PictureFilled" 
+            :icon="Shape" 
             placement="bottom"
           >
             <div class="graph">
@@ -110,7 +110,6 @@
     EditPen, 
     Delete, 
     Back, 
-    PictureFilled, 
     Download 
   } from '@element-plus/icons-vue';
   import { ref, onMounted, reactive, onBeforeUnmount } from 'vue'
@@ -124,10 +123,11 @@
     Circle, 
     getCircleData,
     addDraw,
-Triangle, 
+    Triangle, 
   } from './painting' 
   import DrawingBoard from '@/components/icons/DrawingBoard.vue'
   import ColorFill from '@/components/icons/ColorFill.vue'
+  import Shape from '@/components/icons/Shape.vue'
   const cursor = ref<string>('crosshair')
   const paintBrush = ref<number>(0) // 是否画笔
   const color = ref<string>('#000000') // 颜色
@@ -141,6 +141,9 @@ Triangle,
   const setPaintBrush = (value: number) => {
     if (value === 1) {
       const img: any = new URL('../../assets/images/pen-90.cur', import.meta.url)
+      cursor.value = `url(${img.href})`
+    } else if (value === 100) {
+      const img: any = new URL('../../assets/images/fill.cur', import.meta.url)
       cursor.value = `url(${img.href})`
     }
     paintBrush.value = paintBrush.value === value ? 0 : value
@@ -336,7 +339,21 @@ Triangle,
   }
   // 下载canvas图片
   const dowloadCanvas = () => {
-
+    const canvas = <HTMLCanvasElement>document.getElementById('canvas')
+    // a 标签
+    const a: HTMLAnchorElement = document.createElement('a')
+    a.style.display = 'none'
+    const href: string = canvas.toDataURL()
+    a.href = href
+    // 下载后文件名
+    a.download = '画图'
+    document.body.appendChild(a)
+    // 点击下载
+    a.click()
+    // 下载完成移除元素
+    document.body.removeChild(a)
+    // 释放掉blob对象
+    window.URL.revokeObjectURL(href)
   }
 
   onMounted(() => {
