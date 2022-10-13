@@ -11,16 +11,32 @@
             :icon="EditPen"
             content="画笔"
             :callback="() => setPaintBrush(1)"
+            :selected="paintBrush === 1"
           >
-            <div style="width: 150px">
-              <span>像素大小：</span>
-              <el-slider v-model="lineSize" show-stops :max="16"/>
+          </TooltipButton>
+          <TooltipButton
+            type="text"
+            :icon="LineSize"
+            content="大小"
+            placement="bottom"
+            :disabled="paintBrush === 100"
+          >
+            <div 
+              class="flex pointer line-size" 
+              :class="{ selected: lineSize === 2 ** (i - 1) }"
+              style="width: 150px" 
+              v-for="i in 4" :key="i + 'px'"
+              @click="setPaintSize(2 ** (i - 1))"
+            >
+              <span>{{`${2 ** (i - 1)}像素`}}：</span>
+              <div class="flex-1" :style="{ border: `${2 ** (i - 1)}px solid #000` }"></div>
             </div>
           </TooltipButton>
           <TooltipButton
             content="填充" 
             type="text" 
             :callback="() => setPaintBrush(100)"
+            :selected="paintBrush === 100"
           >
             <template #icon>
               <ColorFill/>
@@ -85,6 +101,11 @@
                 @click="setPaintBrush(6)" 
                 :class="{ 'selected-border': paintBrush === 6 }"
               ></div>
+              <div title="椭圆" 
+                class="ellipse" 
+                @click="setPaintBrush(7)" 
+                :class="{ 'selected-border': paintBrush === 7 }"
+              ></div>
             </div>
           </TooltipButton>
           <TooltipButton 
@@ -122,12 +143,14 @@
     Rectangle, 
     Circle, 
     getCircleData,
+    getEllipseData,
     addDraw,
     Triangle, 
   } from './painting' 
   import DrawingBoard from '@/components/icons/DrawingBoard.vue'
   import ColorFill from '@/components/icons/ColorFill.vue'
   import Shape from '@/components/icons/Shape.vue'
+  import LineSize from '@/components/icons/LineSize.vue'
   const cursor = ref<string>('crosshair')
   const paintBrush = ref<number>(0) // 是否画笔
   const color = ref<string>('#000000') // 颜色
@@ -137,6 +160,10 @@
   const _context = ref<any>(null) // canvas画笔对象
   const center = reactive<{x: number, y: number}>({x: 0, y: 0}) // 起点坐标
   const fillGragh = ref<any>(null)
+  // 设置画笔大小
+  const setPaintSize = (value: number) => {
+    lineSize.value = value
+  }
   // 设置画笔样式
   const setPaintBrush = (value: number) => {
     if (value === 1) {
@@ -189,6 +216,7 @@
       if (paintBrush.value === 1) {
           _context.value.moveTo(e.pageX - left, e.pageY - top)
       }
+      // 获取起点坐标
       setCenterPoint({ x: e.pageX - left, y: e.pageY - top })
     }
   }
@@ -218,6 +246,10 @@
           const circle = getCircleData(canvas, e, center)
           drawCircle(canvas, circle.centerX, circle.centerY, circle.radius)
           break
+        // 椭圆
+        case 7:
+          const ellipse = getEllipseData(canvas, e, center)
+          drawEllipse(canvas, ellipse.centerX, ellipse.centerY, ellipse.axisX, ellipse.axisY)
         default:
           return;
       }
@@ -271,9 +303,25 @@
   // 绘画圆
   const drawCircle = (canvas: HTMLCanvasElement, x: number, y: number, radius: number): void => {
     // 开启路径
-    _context.value.beginPath()
     redrawCanvas(canvas)
-    _context.value.arc(x, y,radius, 0, 2 * Math.PI)
+    _context.value.beginPath()
+    _context.value.arc(x, y, radius, 0, 2 * Math.PI)
+    _context.value.strokeStyle = color.value
+    _context.value.stroke()
+  }
+  /**
+   * 绘制椭圆
+   * @param canvas canvas元素
+   * @param x 中心点x
+   * @param y 中心点y
+   * @param rx 半轴 x
+   * @param ry 半轴 y
+   */
+  const drawEllipse = (canvas: HTMLCanvasElement, x: number, y: number, rx: number, ry: number) => {
+    redrawCanvas(canvas)
+    // 开启路径
+    _context.value.beginPath()
+    _context.value.ellipse(x, y, rx, ry, 0, 0, 2 * Math.PI)
     _context.value.strokeStyle = color.value
     _context.value.stroke()
   }
@@ -356,7 +404,7 @@
     window.URL.revokeObjectURL(href)
   }
 
-  onMounted(() => {
+  onMounted(async () => {
     initCanvas()
   })
   onBeforeUnmount(() => {
@@ -412,6 +460,14 @@
       }
     }
   }
+  .line-size {
+    margin: 2px 0px;
+    padding: 3px 5px;
+    border-radius: 3px;
+    &.selected {
+      background: #ddd;
+    }
+  }
   .graph {
     display: flex;
     justify-content: space-between;
@@ -440,6 +496,13 @@
       border-radius: 50%;
       cursor: pointer;
     }
+    .ellipse {
+      border: 1px solid #666;
+      width: 16px;
+      height: 10px;
+      border-radius: 50%;
+      cursor: pointer;
+    }
     svg {
       width: 1em;
       height: 1em;
@@ -447,6 +510,16 @@
     }
     .selected-border {
       border-color: hotpink;
+    }
+  }
+  .flex {
+    display: flex;
+    align-items: center;
+    &.pointer {
+      cursor: pointer;
+    }
+    .flex-1 {
+      flex: 1;
     }
   }
   .brush {

@@ -4,12 +4,13 @@
     :effect="theme"
     :placement="placement"
     trigger="hover"
+    :disabled="disabled"
   >
     <template #content>
       <slot></slot>
     </template>
     <el-button 
-      :class="className" 
+      :class="[`${[className]}`, `${selected ? 'selected' : ''}`]"
       :type="type" 
       :icon="icon" 
       @click="() => callback()"
@@ -55,12 +56,26 @@
       type: String,
       default: 'light'
     },
+    disabled: {
+      type: Boolean,
+      default: false
+    },
+    selected: {
+      type: Boolean,
+      default: false
+    }
   })
 
 </script>
 <style lang='scss' scoped>
   .el-button {
     font-size: 120%;
+    &:hover {
+      background: #eee;
+    }
+    :deep(span) {
+      margin-left: 0;
+    }
   }
   .purple {
     color: #626aef;
@@ -73,5 +88,8 @@
   }
   .hotpink {
     color: hotpink;
+  }
+  .selected {
+    background: #eee;
   }
 </style>

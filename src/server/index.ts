@@ -3,7 +3,8 @@
  * */
 import express from 'express'
 import bodyParser from 'body-parser'
-import * as fs from 'fs'
+import UserController from './controller/UserController'
+// import * as fs from 'fs'
 const app: express.Application = express()
 // 处理 post 请求的请求体，限制大小最多为 20 兆
 app.use(bodyParser.urlencoded({ limit: '20mb', extended: false }));
@@ -18,27 +19,7 @@ app.all('*', (req, res, next) => {
   res.header("Content-Type", "application/json;charset=utf-8");
   next();
 })
-/**
- * 写文件
- */
-app.post('/write', (req, res) => {
-  // console.log('req', req.body)
-  const { file, fileName } = req.body
-  // res.send('Hello World')
-  fs.writeFile(`src/doc/${fileName}`, file, (error: any) => {
-    if (error) {
-      return res.json({
-        message: '上传失败',
-        code: 500
-      })
-    }
-    return res.json({
-      message: '上传成功',
-      code: 200
-    })
-  })
-})
-
+app.use('/api', UserController)
 app.listen(9088, () => {
   console.log('server running...')
 })

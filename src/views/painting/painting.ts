@@ -1,5 +1,7 @@
 import { reactive, ref } from "vue";
-export const drawType = reactive<string[]>(['', 'line', 'straightLine', 'rectangle', 'triangle', 'triangle', 'circle'])
+export const drawType = reactive<string[]>(
+  ['', 'line', 'straightLine', 'rectangle', 'triangle', 'triangle', 'circle']
+)
 export interface Rectangle {
   type: string;
   point: [number, number];
@@ -57,35 +59,35 @@ export const predefineColors = ref<string[]>([
 ]) 
 
 export const points = reactive<Draw[]>([
-  {
-    type: 'rectangle',
-    point: [20, 20],
-    width: 100,
-    height: 150,
-    color: '#000',
-    fill: false
-  },
-  {
-    type: 'circle',
-    point: [100, 100],
-    radius: 20,
-    color: 'green',
-    fill: false
-  },
-  {
-    type: 'triangle',
-    point: [500, 120],
-    width: 180,
-    height: 90,
-    color: 'hotpink',
-    fill: true,
-  },
-  {
-    type: 'straightLine',
-    point: [800, 300],
-    endPoint: [1300, 350],
-    color: 'hsl(181, 100%, 37%)',
-  }
+  // {
+  //   type: 'rectangle',
+  //   point: [20, 20],
+  //   width: 100,
+  //   height: 150,
+  //   color: '#000',
+  //   fill: false
+  // },
+  // {
+  //   type: 'circle',
+  //   point: [100, 100],
+  //   radius: 20,
+  //   color: 'green',
+  //   fill: false
+  // },
+  // {
+  //   type: 'triangle',
+  //   point: [500, 120],
+  //   width: 180,
+  //   height: 90,
+  //   color: 'hotpink',
+  //   fill: true,
+  // },
+  // {
+  //   type: 'straightLine',
+  //   point: [800, 300],
+  //   endPoint: [1300, 350],
+  //   color: 'hsl(181, 100%, 37%)',
+  // },
 ])
 // 初始化画布点
 export const initPoint = (ctx: CanvasRenderingContext2D) => {
@@ -127,16 +129,28 @@ export const initPoint = (ctx: CanvasRenderingContext2D) => {
 // 获取圆的数据
 export const getCircleData = (canvas: HTMLCanvasElement, e: MouseEvent, startPoint: Point) => {
   const { left, top }  = canvas.getBoundingClientRect()
-    // 当前鼠标位置与点击位置 x 距离
-    const _x: number = e.pageX - left - startPoint.x
-    // 当前鼠标位置与点击位置 y 距离
-    const _y: number = e.pageY - top - startPoint.y
-    // 圆心 x (点击位置与当前鼠标位置中点坐标x)
-    const centerX: number = (2 * startPoint.x + _x) / 2
-    // 圆心 y (点击位置与当前鼠标位置中点坐标y)
-    const centerY: number = (2 * startPoint.y + _y) / 2
-    const radius: number = Math.sqrt((_x * _x) + (_y * _y)) / 2
-    return { centerX, centerY, radius }
+  // 当前鼠标位置与点击位置 x 距离
+  const _x: number = e.pageX - left - startPoint.x
+  // 当前鼠标位置与点击位置 y 距离
+  const _y: number = e.pageY - top - startPoint.y
+  // 圆心 x (点击位置与当前鼠标位置中点坐标x)
+  const centerX: number = (2 * startPoint.x + _x) / 2
+  // 圆心 y (点击位置与当前鼠标位置中点坐标y)
+  const centerY: number = (2 * startPoint.y + _y) / 2
+  const radius: number = Math.sqrt((_x * _x) + (_y * _y)) / 2
+  return { centerX, centerY, radius }
+}
+// 获取椭圆数据
+export const getEllipseData = (canvas: HTMLCanvasElement, e: MouseEvent, startPoint: Point) => {
+  const { left, top }  = canvas.getBoundingClientRect()
+  // x，y 半轴
+  const axisX: number = (e.pageX - left - startPoint.x) / 2
+  const axisY: number = (e.pageY - top - startPoint.y) / 2
+  // 椭圆中心 x 
+  const centerX: number = axisX + Math.min(e.pageX - left, startPoint.x)
+  // 椭圆中心 y 
+  const centerY: number = axisY + Math.min(e.pageY - top, startPoint.y)
+  return { axisX, axisY, centerX, centerY }
 }
 // 添加一个图
 export const addDraw = (

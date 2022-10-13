@@ -5,7 +5,7 @@ interface AxiosConfig {
   timeout: number;
 }
 const config: AxiosConfig = {
-  baseURL: 'http://localhost:9088/api',
+  baseURL: 'http://localhost:9000/api',
   timeout: 3000000,
 }
 

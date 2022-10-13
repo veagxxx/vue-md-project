@@ -18,7 +18,7 @@ app.all('*', (req, res, next) => {
 /**
  * 写文件
  */
- app.post('/api/write', (req, res) => {
+app.post('/api/write', (req, res) => {
   // console.log('req', req.body)
   const { file, fileName, routerName, routerPath, date } = req.body
   // 先读取路由配置 json 文件
