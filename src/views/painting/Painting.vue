@@ -29,7 +29,7 @@
               @click="setPaintSize(2 ** (i - 1))"
             >
               <span>{{`${2 ** (i - 1)}像素`}}：</span>
-              <div class="flex-1" :style="{ border: `${2 ** (i - 1)}px solid #000` }"></div>
+              <div class="flex-1 line" :style="{ height: `${2 ** (i - 1)}px` }"></div>
             </div>
           </TooltipButton>
           <TooltipButton
@@ -127,14 +127,10 @@
 </template>
 
 <script lang='ts' setup>
-  import { 
-    EditPen, 
-    Delete, 
-    Back, 
-    Download 
-  } from '@element-plus/icons-vue';
+  import { EditPen, Delete, Back, Download } from '@element-plus/icons-vue';
   import { ref, onMounted, reactive, onBeforeUnmount } from 'vue'
   import TooltipButton from '@/components/TooltipButton.vue';
+  import { DrawType } from '@/types/index'
   import { 
     predefineColors, 
     initPoint, 
@@ -145,7 +141,8 @@
     getCircleData,
     getEllipseData,
     addDraw,
-    Triangle, 
+    Triangle,
+    Ellipse, 
   } from './painting' 
   import DrawingBoard from '@/components/icons/DrawingBoard.vue'
   import ColorFill from '@/components/icons/ColorFill.vue'
@@ -166,10 +163,10 @@
   }
   // 设置画笔样式
   const setPaintBrush = (value: number) => {
-    if (value === 1) {
+    if (value === DrawType.LINE) {
       const img: any = new URL('../../assets/images/pen-90.cur', import.meta.url)
       cursor.value = `url(${img.href})`
-    } else if (value === 100) {
+    } else if (value === DrawType.FILL) {
       const img: any = new URL('../../assets/images/fill.cur', import.meta.url)
       cursor.value = `url(${img.href})`
     }
@@ -186,9 +183,14 @@
     drawArr.length = 0
     const canvas = document.getElementById('canvas') as HTMLCanvasElement
     const dom = document.getElementById('paint-body') as HTMLElement
-    canvas.width = dom.offsetWidth
-    canvas.height = dom.offsetHeight
+    const [width, height]: number[] = [dom.offsetWidth, dom.offsetHeight]
+    const dpr: number = window.devicePixelRatio
+    canvas.style.width = width + 'px'
+    canvas.style.height = height + 'px'
+    canvas.width = width * dpr
+    canvas.height = height * dpr
     const ctx = canvas.getContext("2d", { willReadFrequently: true })
+    ctx!.scale(dpr, dpr)
     _context.value = ctx
     initPoint(_context.value)
     canvas.addEventListener('mousedown', (e: MouseEvent) => onMouseDown(canvas, e))
@@ -199,8 +201,8 @@
   }
   // 鼠标点击
   const onMouseClick = (canvas: HTMLCanvasElement, e: MouseEvent) => {
-    if (paintBrush.value === 100) {
-      fillCanvas(canvas, fillGragh.value)
+    if (paintBrush.value === DrawType.FILL) {
+      fillCanvas(fillGragh.value)
     }
   }
   // 鼠标按下
@@ -213,7 +215,7 @@
       // 获取填充图形
       fillGragh.value = getFillGragh([e.pageX - left, e.pageY - top], canvas)
       _context.value.beginPath()
-      if (paintBrush.value === 1) {
+      if (paintBrush.value === DrawType.LINE) {
           _context.value.moveTo(e.pageX - left, e.pageY - top)
       }
       // 获取起点坐标
@@ -226,28 +228,28 @@
       const { left, top }  = canvas.getBoundingClientRect()
       switch (paintBrush.value) {
         // 画线
-        case 1:
+        case DrawType.LINE:
           drawLine(e.pageX - left, e.pageY - top)
           break;
-        case 2:
+        case DrawType.STRAIGHTLINE:
           drawStraightLine(canvas, e.pageX - left, e.pageY - top)
           break
         // 画矩形
-        case 3:
+        case DrawType.RECTANGLE:
           drawRectangle(canvas, e.pageX - left - center.x, e.pageY - top - center.y)
           break
         // 画三角形
-        case 4:
-        case 5:
+        case DrawType.TRIANGLE:
+        case DrawType.RIGHTANGLE:
           drawTriangle(canvas, e.pageX - left, e.pageY - top)
           break
         // 画圆
-        case 6:
+        case DrawType.CIRCLE:
           const circle = getCircleData(canvas, e, center)
           drawCircle(canvas, circle.centerX, circle.centerY, circle.radius)
           break
         // 椭圆
-        case 7:
+        case DrawType.ELLIPSE:
           const ellipse = getEllipseData(canvas, e, center)
           drawEllipse(canvas, ellipse.centerX, ellipse.centerY, ellipse.axisX, ellipse.axisY)
         default:
@@ -260,6 +262,7 @@
     _context.value.lineTo(x, y)
     _context.value.strokeStyle = color.value
     _context.value.lineWidth = lineSize.value
+    _context.value.lineJoin = 'round'
     _context.value.stroke()
   }
   // 画直线
@@ -280,7 +283,7 @@
   const drawTriangle = (canvas: HTMLCanvasElement, x: number, y: number): void => {
     _context.value.beginPath()
     redrawCanvas(canvas)
-    if (paintBrush.value === 4) {
+    if (paintBrush.value === DrawType.TRIANGLE) {
       // 左侧角起点
       _context.value.moveTo(center.x, y)
       // 右侧角
@@ -354,7 +357,7 @@
     _context.value.putImageData(drawArr[drawArr.length - 1], 0, 0)
   }
   // 填充画布
-  const fillCanvas = (canvas: HTMLCanvasElement, graph: Draw) => {
+  const fillCanvas = (graph: Draw) => {
     _context.value.fillStyle = color.value
     if (graph) {
       if (graph.type === 'rectangle') {
@@ -379,6 +382,9 @@
           // 右侧角
           _context.value.lineTo((<Triangle>graph).width + graph.point[0], (<Triangle>graph).height + graph.point[1])
         }
+        _context.value.fill()
+      } else if (graph.type === 'ellipse') {
+        _context.value.ellipse(...graph.point, (<Ellipse>graph).axisX, (<Ellipse>graph).axisY, 0, 0, 2 * Math.PI)
         _context.value.fill()
       }
     } else {
@@ -511,6 +517,9 @@
     .selected-border {
       border-color: hotpink;
     }
+  }
+  .line {
+    background: #000;
   }
   .flex {
     display: flex;

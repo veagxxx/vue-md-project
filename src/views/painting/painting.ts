@@ -1,6 +1,7 @@
+import { DrawType } from "@/types";
 import { reactive, ref } from "vue";
 export const drawType = reactive<string[]>(
-  ['', 'line', 'straightLine', 'rectangle', 'triangle', 'triangle', 'circle']
+  ['', 'line', 'straightLine', 'rectangle', 'triangle', 'triangle', 'circle', 'ellipse']
 )
 export interface Rectangle {
   type: string;
@@ -32,11 +33,19 @@ export interface Line {
   endPoint: [number, number];
   color: string;
 }
+export interface Ellipse {
+  type: string;
+  point: [number, number];
+  axisX: number;
+  axisY: number;
+  color: string;
+  fill: boolean;
+}
 type Point = {
   x: number;
   y: number;
 }
-export type Draw = Rectangle | Circle | Triangle | Line
+export type Draw = Rectangle | Circle | Triangle | Line | Ellipse
 
 // 预定义颜色
 export const predefineColors = ref<string[]>([
@@ -163,9 +172,9 @@ export const addDraw = (
   const { left, top }  = canvas.getBoundingClientRect()
     let draw: Draw | any = null
     switch (paintBrush) {
-      case 1:
+      case DrawType.LINE:
         return
-      case 2:
+      case DrawType.STRAIGHTLINE:
         draw = {
           type: drawType[paintBrush],
           point: [startPoint.x, startPoint.y],
@@ -173,9 +182,9 @@ export const addDraw = (
           color: color
         }
         break
-      case 3:
-      case 4:
-      case 5:
+      case DrawType.RECTANGLE:
+      case DrawType.TRIANGLE:
+      case DrawType.RIGHTANGLE:
         draw = {
           type: drawType[paintBrush],
           point: [startPoint.x, startPoint.y],
@@ -184,11 +193,11 @@ export const addDraw = (
           color: color,
           fill: false,
         }
-        if (paintBrush === 5) {
+        if (paintBrush === DrawType.RIGHTANGLE) {
           draw.rightAngle = true
         }
         break
-      case 6: 
+      case DrawType.CIRCLE: 
         const circle = getCircleData(canvas, e, startPoint)
         draw = {
           type: drawType[paintBrush],
@@ -197,6 +206,17 @@ export const addDraw = (
           color: color,
           fill: false
         }   
+        break
+      case DrawType.ELLIPSE:
+        const ellipse = getEllipseData(canvas, e, startPoint)
+        draw = {
+          type: drawType[paintBrush],
+          point: [ellipse.centerX, ellipse.centerY],
+          axisX: ellipse.axisX,
+          axisY: ellipse.axisY,
+          color: color,
+          fill: false
+        }
         break
       default:
         return
@@ -212,6 +232,17 @@ export const addDraw = (
  */
 const pointInCircle = (startPoint: number[], radius: number, point: number[]): boolean => {
   return (point[0] - startPoint[0]) ** 2 + (point[1] - startPoint[1]) ** 2 <= radius ** 2
+}
+/**
+ * 判断点是否在椭圆内，根据椭圆方程 (x - x1)² / a² + (y - y1)² / b² = 1，a为x半轴，b为y半轴
+ * @param center 椭圆中心
+ * @param axisX a
+ * @param axisY b
+ * @param point 点击位置(点)
+ * @returns  x² / a² + y² / b² <= 1
+ */
+const pointInEllipse = (center: number[], axisX: number, axisY: number, point: number[]): boolean => {
+  return (center[0] - point[0]) ** 2 / (axisX ** 2) + (center[1] - point[1]) ** 2 / (axisY ** 2) <= 1
 }
 /**
  * 1. 当前点是否在图形中
@@ -233,8 +264,8 @@ export const getFillGragh = (point: number[], canvas: HTMLCanvasElement): Draw =
     const [startX, startY]: number[] = points[i].point
     if (points[i].type === 'rectangle') {
       const [endX, endY]: number[] = [
-        points[i].point[0] + ((<Rectangle>points[i]).width), 
-        points[i].point[1] + ((<Rectangle>points[i]).height)
+        startX + ((<Rectangle>points[i]).width), 
+        startY + ((<Rectangle>points[i]).height)
       ]
       // 点是否在图形中
       if ((point[0] >= startX && point[0] <= endX) && (point[1] >= startY && point[1] <= endY)) {
@@ -256,17 +287,17 @@ export const getFillGragh = (point: number[], canvas: HTMLCanvasElement): Draw =
         }
       }
     } else if (points[i].type === 'triangle') {
-      const APB = getAngle(
+      const APB: number = getAngle(
         { x: point[0], y: point[1] }, 
         { x: startX, y: (<Triangle>points[i]).height + startY }, 
         { x: (startX + (<Triangle>points[i]).width + startX) / 2, y: startY }
       ) 
-      const APC = getAngle(
+      const APC: number = getAngle(
         { x: point[0], y: point[1] }, 
         { x: startX, y: (<Triangle>points[i]).height + startY }, 
         { x: startX + (<Triangle>points[i]).width, y: startY + (<Triangle>points[i]).height }
       ) 
-      const BPC = getAngle(
+      const BPC: number = getAngle(
         { x: point[0], y: point[1] }, 
         { x: startX + (<Triangle>points[i]).width / 2, y: startY },
         { x: startX + (<Triangle>points[i]).width, y: startY + (<Triangle>points[i]).height }
@@ -282,6 +313,17 @@ export const getFillGragh = (point: number[], canvas: HTMLCanvasElement): Draw =
           result = <Triangle>points[i]
         }
       }
+    } else if (points[i].type === 'ellipse') {
+      const inEllipse: boolean = pointInEllipse(
+        points[i].point, (<Ellipse>points[i]).axisX, (<Ellipse>points[i]).axisY, point
+      )
+      if (inEllipse) {
+        const distance: number = Math.sqrt(Math.abs(startX - point[0]) ** 2 + Math.abs(startY - point[1]) ** 2) 
+        if (distance < minDistance) {
+          minDistance = distance
+          result = <Ellipse>points[i]
+        }
+      }
     }
   }
   result.fill = true
@@ -289,11 +331,11 @@ export const getFillGragh = (point: number[], canvas: HTMLCanvasElement): Draw =
 }
 // ABC 三点求角 BAC 
 const getAngle = (A: Point, B: Point, C: Point) => {
-  const AB = Math.sqrt(Math.pow(A.x - B.x, 2) + Math.pow(A.y - B.y, 2))
-  const AC = Math.sqrt(Math.pow(A.x - C.x, 2) + Math.pow(A.y - C.y, 2))
-  const BC = Math.sqrt(Math.pow(B.x - C.x, 2) + Math.pow(B.y - C.y, 2))
+  const AB: number = Math.sqrt(Math.pow(A.x - B.x, 2) + Math.pow(A.y - B.y, 2))
+  const AC: number = Math.sqrt(Math.pow(A.x - C.x, 2) + Math.pow(A.y - C.y, 2))
+  const BC: number = Math.sqrt(Math.pow(B.x - C.x, 2) + Math.pow(B.y - C.y, 2))
   // cosA = (a² + b² - c²) / 2ab
-  const cosA = (Math.pow(AB, 2) + Math.pow(AC, 2) - Math.pow(BC, 2)) / (2 * AB * AC)
-  const angleA = Math.acos(cosA) * 180 / Math.PI
+  const cosA: number = (Math.pow(AB, 2) + Math.pow(AC, 2) - Math.pow(BC, 2)) / (2 * AB * AC)
+  const angleA: number = Math.acos(cosA) * 180 / Math.PI
   return angleA
 }
