@@ -359,6 +359,7 @@
   // 填充画布
   const fillCanvas = (graph: Draw) => {
     _context.value.fillStyle = color.value
+    // _context.value.globalCompositeOperation = 'xor'
     if (graph) {
       if (graph.type === 'rectangle') {
         _context.value.fillRect(...graph.point, (<Rectangle>graph).width, (<Rectangle>graph).height)

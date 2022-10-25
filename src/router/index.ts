@@ -13,6 +13,7 @@ const Page404 = () => import('@/views/page-404/Page404.vue')
 const Layout = () => import("@/layout/index.vue")
 const Statistic = () => import('@/views/statistics/index.vue')
 const Painting = () => import ('@/views/painting/Painting.vue')
+const ZCharts = () => import('@/views/zcharts/index.vue')
 const routes: Array<RouteRecordRaw> = [
   {
     path: '/',
@@ -26,6 +27,7 @@ const routes: Array<RouteRecordRaw> = [
       { path: "/guide", component: IntroDoc },
       { path: '/statistics', component: Statistic },
       { path: '/fantastic', component: Painting },
+      { path: '/z-charts', component: ZCharts },
     ],
     meta: {
       title: "文档",

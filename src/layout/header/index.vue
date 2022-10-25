@@ -25,7 +25,8 @@
             {{ item.name }}  
           </el-menu-item>
         </el-sub-menu>
-        <el-menu-item index="/fantastic">花里胡哨</el-menu-item>
+        <el-menu-item index="/fantastic">画图</el-menu-item>
+        <el-menu-item index="/z-charts">图表</el-menu-item>
       </el-menu>
       <div class="icon-item" @click="handleOpenUpload">
         <span>上传</span>
@@ -83,6 +84,7 @@ onMounted(() => {
     align-items: center;
     justify-content: space-between;
     height: 100%;
+    user-select: none;
     .header-left {
       width: 30%;
       height: 100%;

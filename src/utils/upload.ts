@@ -43,3 +43,92 @@ export const uploadMdFile = (file: any, name: string) => {
     }
   })
 }
+
+
+
+  // const animationId = ref<number>(0)
+  // const resizing = ref<boolean>(false)
+  // const initCanvas = () => {
+  //   const canvas = <HTMLCanvasElement>document.getElementById('canvas')
+  //   const ctx = <CanvasRenderingContext2D>canvas.getContext('2d')
+  //   const scale: number = 2
+  //   const fontSize: number = 20 * scale
+  //   const lineHeight = fontSize * 1.2
+  //   const dpr: number = window.devicePixelRatio
+  //   const [width, height]: number[] = [
+  //     (canvas.parentElement!.offsetWidth - 20) * dpr, 
+  //     (canvas.parentElement!.offsetHeight - 20) * dpr
+  //   ]
+  //   canvas.width = width
+  //   canvas.height = height
+  //   canvas.style.width = width / scale + 'px'
+  //   canvas.style.height = height / scale + 'px'
+  //   ctx.lineWidth = 20 * scale
+  //   ctx.font = `${fontSize}px 微软雅黑`
+  //   ctx.textAlign = 'center'
+  //   ctx.textBaseline = 'middle'
+  //   const mockData: any = [
+  //     {
+  //       text: '图表1',
+  //       rate: 90,
+  //       color: '#ff8800'
+  //     },
+  //     {
+  //       text: '图表2',
+  //       rate: 100,
+  //       color: 'green'
+  //     },
+  //   ]
+  //   mockData.forEach((item: any) => {
+  //     item.runRate = 0,
+  //     item.step = item.rate / 100
+  //   });
+  //   const render = () => {
+  //     ctx.clearRect(0, 0, width, height)
+  //     mockData.forEach((item: any, index: number) => {
+  //       const mt: number = ctx.lineWidth / 2 + index * (ctx.lineWidth - index)
+  //       const radius: number = canvas.height / 2
+  //       ctx.beginPath()
+  //       ctx.strokeStyle = '#eeeeee'
+  //       ctx.lineCap = 'round'
+  //       ctx.arc(width / 2, radius, radius - mt, 0, Math.PI * 2)
+  //       ctx.stroke()
+
+  //       ctx.beginPath()
+  //       ctx.strokeStyle = item.color
+  //       ctx.lineCap = 'round'
+  //       ctx.arc(width / 2, radius, radius - mt, 0, Math.PI / 180 * (360 * item.runRate / 100))
+  //       ctx.stroke()
+
+  //       if (item.runRate > item.rate) {
+  //         item.runRate = item.rate
+  //       } else if (item.runRate < item.rate) {
+  //         item.runRate += item.step
+  //       }
+
+  //       ctx.fillStyle = item.color
+  //       ctx.fillText(
+  //         `${item.text}：${item.rate}%`, 
+  //         width / 2, 
+  //         index * lineHeight + (height - lineHeight * mockData.length) / 2 + lineHeight / 2
+  //       )
+  //     })
+  //     if (!resizing.value) {
+  //       animationId.value = window.requestAnimationFrame(render)
+  //     }
+  //   }
+  //   render()
+  // }
+  // const resizeCanvas = () => {
+  //   resizing.value = true
+  //   window.cancelAnimationFrame(animationId.value)
+  //   initCanvas()
+  //   resizing.value = false
+  // }
+  // onMounted(() => {
+  //   window.addEventListener('resize', resizeCanvas)
+  //   initCanvas()
+  // })
+  // onUnmounted(() => {
+  //   window.removeEventListener('resize', resizeCanvas)
+  // })
