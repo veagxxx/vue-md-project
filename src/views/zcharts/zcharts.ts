@@ -1,3 +1,4 @@
+import Bar from './charts/BarChart';
 import { ChartData, Chart, Legend, Title, Option, ChartTypeData } from './type'
 
 interface ZCharts {
@@ -7,22 +8,23 @@ interface ZCharts {
   width: number; // canvas 宽
   height: number; // canvas 高
 }
-class ZCharts implements ZCharts {
-  chartsDrawData: ChartTypeData[] = []; // 
-  option: Option | null = null
+class ZCharts extends Bar implements ZCharts {
+  private chartsDrawData: ChartTypeData[] = [] // 
+  // private option: Option<string | number> | null = null
+  private dpr: number = window.devicePixelRatio
   constructor(container: HTMLElement) {
+    super()
     this._container = container
     this.initCanvas()
   }
   /**
    * 初始化
    */
-  initCanvas() {
-    const dpr = window.devicePixelRatio
+   private initCanvas() {
     const offsetWidth: number = this._container.offsetWidth
     const offsetHeight: number = this._container.offsetHeight
-    const width: number = offsetWidth * dpr
-    const height: number = offsetHeight * dpr
+    const width: number = offsetWidth * this.dpr
+    const height: number = offsetHeight * this.dpr
     const canvas: HTMLCanvasElement = document.createElement('canvas')
     this._container.appendChild(canvas)
     const ctx = canvas.getContext('2d') as CanvasRenderingContext2D
@@ -40,15 +42,16 @@ class ZCharts implements ZCharts {
    * 设置图表配置参数
    * @param option charts option data
    */
-  setOption(option: Option | null) {
-    this.option = option
+  setOption(option: Option<string | number> | null) {
+    // this.option = option
     this._ctx.clearRect(0, 0, this.width, this.height)
     if (option) {
       this.drawTitle(option.title)
-      this.drawChartByData(option.series || [])
+      this.initAxis(option, this._ctx, this._canvas)
+      // this.drawChartByData(option.series || [])
     }
   }
-  drawTitle(title: Title) {
+  private drawTitle(title: Title) {
     const lineHeight: number = title.lineHeight || 20
     const fontSize: number = title.size || 40
     const text: string = title.text || ''
@@ -59,7 +62,7 @@ class ZCharts implements ZCharts {
     const x: number = title.align === 'center' ? this.width / 2 : text.length * fontSize / 2
     this._ctx.fillText(text, x, fontSize + lineHeight)
   }
-  drawChartByData(chartData: Chart[]) {
+  private drawChartByData(chartData: Chart[]) {
     chartData.forEach((item: Chart, index: number) => {
       switch (item.type) {
         case 'bar':
@@ -92,7 +95,7 @@ class ZCharts implements ZCharts {
       }
     })
   }
-  drawPieChart(chart: ChartTypeData) {
+  private drawPieChart(chart: ChartTypeData) {
     const { x, y, r, startAngle, endAngle } = chart
     const chartIndex: number = this.chartsDrawData.findIndex((ch: ChartTypeData) => ch.id === chart.id)
     if (chartIndex > -1 && this.chartsDrawData[chartIndex].r !== r) {
@@ -122,7 +125,7 @@ class ZCharts implements ZCharts {
    * @param event 鼠标事件
    * @param item canvas
    */
-  pointInCanvas(event: MouseEvent) {
+  private pointInCanvas(event: MouseEvent) {
     const { x, y } = this.getMousePoint(event)
     const copyData: ChartTypeData[] = JSON.parse(JSON.stringify(this.chartsDrawData))
     for (let i = 0; i < copyData.length; i++) {
@@ -138,12 +141,13 @@ class ZCharts implements ZCharts {
     }
     // console.log(x, y)
   }
-  pointInPie(point: [number, number], pieData: ChartTypeData): boolean {
+  private pointInPie(point: [number, number], pieData: ChartTypeData): boolean {
     const { x, y, r, startAngle, endAngle, radius } = pieData
-    const [diffX, diffY] = [point[0] - x / 2, point[1] - y / 2]
-    // 鼠标到圆心位置(饼图是经过缩放后的需还原)
-    console.log((radius as number[])[1])
-    const dis: number = Math.sqrt(diffX * diffX + diffY * diffY) * 100 / (radius as number[])[1]
+    const [diffX, diffY] = [point[0] - x / this.dpr, point[1] - y / this.dpr]
+    console.log('diff', diffX, diffY, point, x / this.dpr, y / this.dpr)
+    // 鼠标到圆心位置
+    const dis: number = Math.sqrt(diffX * diffX + diffY * diffY)
+    console.log('d-r',dis , r )
     // 是否在扇形对应角度区域
     let ang: number = Math.atan2(diffY, diffX)
     if (ang < 0) {
@@ -156,16 +160,17 @@ class ZCharts implements ZCharts {
    * @param event 
    * @returns 
    */
-  getMousePoint(event: MouseEvent) {
-    const { clientX, clientY }: { clientX: number, clientY: number } = event
+   private getMousePoint(event: MouseEvent) {
+    const { clientX, clientY, pageX, pageY }: { clientX: number, clientY: number, pageX: number, pageY: number } = event
     const { left, top } = this._canvas.getBoundingClientRect()
+    console.log('鼠标位置：', [clientX, clientY], [pageX, pageY], left, top)
     const [x, y] = [clientX - left, clientY - top]
     return { x, y }
   }
   resize() {
     this.initCanvas()
   }
-  canvasDestory() {
+  private canvasDestory() {
     this._canvas.removeEventListener('click', (event: MouseEvent) => this.pointInCanvas(event))
   }
 }

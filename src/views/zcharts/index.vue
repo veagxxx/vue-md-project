@@ -15,24 +15,32 @@
   })
   const initChart = () => {
     const zcharts = new ZCharts(document.getElementById('chart') as HTMLElement)
-    const option: Option = {
+    const option: Option<string | number> = {
       title: {
         text: '这是一个ZCharts的title',
         align: 'center',
         color: '#ff8800'
       },
+      xAxis: {
+        type: 'value',
+        data: ['1', '2', '3', '4', '5'],
+      },
+      yAxis: {
+        type: 'value',
+        data: [10, 50, 100, 200, 250, 50, 300],
+      },
       series: [
         {
           name: 'ZChart的饼图',
           type: 'pie',
-          radius: [0, 80],
+          radius: [0, 50],
           colors: ['green', 'hotpink', 'red', 'blue', 'orange'],
           data: [
             { name: '测试1', value: 25 },
             { name: '测试2', value: 75 },
             { name: '测试3', value: 75 },
             { name: '测试4', value: 75 },
-            { name: '测试5', value: 75 },
+            { name: '测试5', value: 1575 },
           ]
         }
       ]

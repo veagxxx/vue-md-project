@@ -26,11 +26,23 @@ export interface Title {
   color?: string;
   lineHeight?: number;
 }
+export interface XYAxis<T> {
+  type: 'value' | 'other';
+  data?: T[];
+  show?: boolean;
+}
+export interface Axis<T> {
+  xAxis: XYAxis<T>;
+  yAxis: XYAxis<T>;
+}
+
 /**
  * 图表参数配置
  */
-export interface Option {
+export interface Option<T> {
   title: Title;
+  xAxis: XYAxis<T>;
+  yAxis: XYAxis<T>;
   legend?: Legend;
   series: Chart[];
 }
