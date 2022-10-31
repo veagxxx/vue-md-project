@@ -10,30 +10,35 @@ interface ZCharts {
 }
 class ZCharts extends Bar implements ZCharts {
   private chartsDrawData: ChartTypeData[] = [] // 
-  // private option: Option<string | number> | null = null
+  private option: Option | null = null
   private dpr: number = window.devicePixelRatio
   constructor(container: HTMLElement) {
     super()
     this._container = container
     this.initCanvas()
   }
+  private createCanvas() {
+    const canvas: HTMLCanvasElement = document.createElement('canvas')
+    this._container.appendChild(canvas)
+    const ctx = canvas.getContext('2d') as CanvasRenderingContext2D
+    this._ctx = ctx
+    this._canvas = canvas
+  }
   /**
    * 初始化
    */
-   private initCanvas() {
+  private initCanvas(resize?: boolean) {
     const offsetWidth: number = this._container.offsetWidth
     const offsetHeight: number = this._container.offsetHeight
     const width: number = offsetWidth * this.dpr
     const height: number = offsetHeight * this.dpr
-    const canvas: HTMLCanvasElement = document.createElement('canvas')
-    this._container.appendChild(canvas)
-    const ctx = canvas.getContext('2d') as CanvasRenderingContext2D
-    canvas.width = width
-    canvas.height = height
-    canvas.style.width = offsetWidth + 'px'
-    canvas.style.height = offsetHeight + 'px'
-    this._canvas = canvas
-    this._ctx = ctx
+    if (!resize) {
+      this.createCanvas()
+    }
+    this._canvas.width = width
+    this._canvas.height = height
+    this._canvas.style.width = offsetWidth + 'px'
+    this._canvas.style.height = offsetHeight + 'px'
     this.width = width
     this.height = height
     this._canvas.addEventListener('click', (event: MouseEvent) => this.pointInCanvas(event))
@@ -42,25 +47,14 @@ class ZCharts extends Bar implements ZCharts {
    * 设置图表配置参数
    * @param option charts option data
    */
-  setOption(option: Option<string | number> | null) {
-    // this.option = option
-    this._ctx.clearRect(0, 0, this.width, this.height)
+  setOption(option: Option | null) {
+    this.option = option
     if (option) {
-      this.drawTitle(option.title)
-      this.initAxis(option, this._ctx, this._canvas)
+      this._ctx.clearRect(0, 0, this.width, this.height)
+      this.drawTitle(option.title, this._ctx, this.width)
+      this.initBarChart(option, this._ctx, this._canvas)
       // this.drawChartByData(option.series || [])
     }
-  }
-  private drawTitle(title: Title) {
-    const lineHeight: number = title.lineHeight || 20
-    const fontSize: number = title.size || 40
-    const text: string = title.text || ''
-    this._ctx.font = `${fontSize}px 微软雅黑`
-    this._ctx.fillStyle = title.color || '#000'
-    this._ctx.textAlign = 'center'
-    this._ctx.textBaseline = 'middle'
-    const x: number = title.align === 'center' ? this.width / 2 : text.length * fontSize / 2
-    this._ctx.fillText(text, x, fontSize + lineHeight)
   }
   private drawChartByData(chartData: Chart[]) {
     chartData.forEach((item: Chart, index: number) => {
@@ -82,7 +76,7 @@ class ZCharts extends Bar implements ZCharts {
               x, 
               y,
               r,
-              color: item.colors[i] || 'red',
+              color: item.colors ? item.colors[i] : 'red',
               startAngle,
               endAngle,
               state: 0,
@@ -127,6 +121,7 @@ class ZCharts extends Bar implements ZCharts {
    */
   private pointInCanvas(event: MouseEvent) {
     const { x, y } = this.getMousePoint(event)
+    console.log(this._ctx.isPointInPath(x * this.dpr, y * this.dpr), [x * this.dpr, y * this.dpr])
     const copyData: ChartTypeData[] = JSON.parse(JSON.stringify(this.chartsDrawData))
     for (let i = 0; i < copyData.length; i++) {
       const item: ChartTypeData = copyData[i]
@@ -144,10 +139,8 @@ class ZCharts extends Bar implements ZCharts {
   private pointInPie(point: [number, number], pieData: ChartTypeData): boolean {
     const { x, y, r, startAngle, endAngle, radius } = pieData
     const [diffX, diffY] = [point[0] - x / this.dpr, point[1] - y / this.dpr]
-    console.log('diff', diffX, diffY, point, x / this.dpr, y / this.dpr)
     // 鼠标到圆心位置
     const dis: number = Math.sqrt(diffX * diffX + diffY * diffY)
-    console.log('d-r',dis , r )
     // 是否在扇形对应角度区域
     let ang: number = Math.atan2(diffY, diffX)
     if (ang < 0) {
@@ -163,12 +156,13 @@ class ZCharts extends Bar implements ZCharts {
    private getMousePoint(event: MouseEvent) {
     const { clientX, clientY, pageX, pageY }: { clientX: number, clientY: number, pageX: number, pageY: number } = event
     const { left, top } = this._canvas.getBoundingClientRect()
-    console.log('鼠标位置：', [clientX, clientY], [pageX, pageY], left, top)
     const [x, y] = [clientX - left, clientY - top]
     return { x, y }
   }
   resize() {
-    this.initCanvas()
+    if (this.option) this.option.animation = false
+    this.initCanvas(true)
+    this.setOption(this.option)
   }
   private canvasDestory() {
     this._canvas.removeEventListener('click', (event: MouseEvent) => this.pointInCanvas(event))

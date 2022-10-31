@@ -4,19 +4,29 @@ type ChartType = 'bar' | 'pie' | 'line'
 export interface ChartData {
   name: string;
   value: number;
+  rate?: number;
 }
 // 图形
 export interface Chart {
   name: string;
   type: ChartType;
   radius?: [number, number];
-  colors: string[];
+  colors?: string[];
   data: ChartData[];
+  barGap?: number;
 }
 // 提示
 export interface Legend {
-  data: string[];
-  position: 'vertical' | 'horizontal'
+  data?: string[];
+  position?: 'vertical' | 'horizontal';
+  show?: boolean;
+  width?: number;
+  height?: number;
+  align?: 'center' | 'left' | 'right';
+  fontSize?: number;
+  gap?: number;
+  top?: number;
+  radius?: number; 
 }
 // 标题
 export interface Title {
@@ -39,12 +49,13 @@ export interface Axis<T> {
 /**
  * 图表参数配置
  */
-export interface Option<T> {
+export interface Option {
   title: Title;
-  xAxis: XYAxis<T>;
-  yAxis: XYAxis<T>;
+  xAxis: XYAxis<string | number>;
+  yAxis: XYAxis<string | number>;
   legend?: Legend;
   series: Chart[];
+  animation?: boolean;
 }
 
 export interface PieData {

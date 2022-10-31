@@ -143,6 +143,7 @@
     addDraw,
     Triangle,
     Ellipse, 
+    points,
   } from './painting' 
   import DrawingBoard from '@/components/icons/DrawingBoard.vue'
   import ColorFill from '@/components/icons/ColorFill.vue'
@@ -263,6 +264,7 @@
     _context.value.strokeStyle = color.value
     _context.value.lineWidth = lineSize.value
     _context.value.lineJoin = 'round'
+    _context.value.lineCap = 'round'
     _context.value.stroke()
   }
   // 画直线
@@ -339,6 +341,7 @@
   const revokeDraw = () => {
     if (drawArr.length) {
       _context.value.putImageData(drawArr.pop(), 0, 0)
+      points.pop()
     } else {
       return
     }
@@ -348,6 +351,8 @@
     const canvas = document.getElementById('canvas') as HTMLCanvasElement
     const ctx = canvas.getContext("2d") as CanvasRenderingContext2D
     ctx.clearRect(0, 0, canvas.width, canvas.height) 
+    drawArr.length = 0
+    points.length = 0
   }
   // 重绘画布
   const redrawCanvas = (canvas: HTMLCanvasElement) => {
