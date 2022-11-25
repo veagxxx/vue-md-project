@@ -48,70 +48,87 @@
             { name: 'JDG', value: 800 },
             { name: 'IG', value: 200 },
             { name: 'WBG', value: 1200 },
-            { name: 'LNG', value: 1600 },
+            { name: 'LNG', value: 1000 },
+          ]
+        },
+        // {
+        //   name: 'ZChart的饼图',
+        //   type: 'bar',
+        //   radius: [0, 50],
+        //   colors: ['green', 'hotpink', 'red', 'blue', 'orange'],
+        //   data: [
+        //     { name: 'RNG', value: 25 },
+        //     { name: 'EDG', value: 75 },
+        //     { name: 'WE', value: 75 },
+        //     { name: 'JDG', value: 800 },
+        //     { name: 'IG', value: 200 },
+        //     { name: 'WBG', value: 1200 },
+        //     { name: 'LNG', value: 1600 },
+        //   ]
+        // },
+        // {
+        //   name: 'ZChart的饼图',
+        //   type: 'bar',
+        //   radius: [0, 50],
+        //   colors: ['green', 'hotpink', 'red', 'blue', 'orange'],
+        //   data: [
+        //     { name: 'RNG', value: 25 },
+        //     { name: 'EDG', value: 75 },
+        //     { name: 'WE', value: 75 },
+        //     { name: 'JDG', value: 800 },
+        //     { name: 'IG', value: 200 },
+        //     { name: 'WBG', value: 1200 },
+        //     { name: 'LNG', value: 1600 },
+        //   ]
+        // },
+        // {
+        //   name: 'ZChart的饼图',
+        //   type: 'bar',
+        //   radius: [0, 50],
+        //   colors: ['green', 'hotpink', 'red', 'blue', 'orange'],
+        //   data: [
+        //     { name: 'RNG', value: 25 },
+        //     { name: 'EDG', value: 75 },
+        //     { name: 'WE', value: 75 },
+        //     { name: 'JDG', value: 800 },
+        //     { name: 'IG', value: 200 },
+        //     { name: 'WBG', value: 1200 },
+        //     { name: 'LNG', value: 1600 },
+        //   ]
+        // },
+        {
+          name: 'ZChart的饼图',
+          type: 'line',
+          radius: [0, 50],
+          colors: ['green', 'hotpink', 'red', 'blue', 'orange'],
+          data: [
+            { name: 'RNG', value: 885 },
+            { name: 'EDG', value: 1235 },
+            { name: 'WE', value: 1175 },
+            { name: 'JDG', value: 600 },
+            { name: 'IG', value: 400 },
+            { name: 'WBG', value: 700 },
+            { name: 'LNG', value: 1000 },
           ]
         },
         {
           name: 'ZChart的饼图',
-          type: 'bar',
+          type: 'line',
           radius: [0, 50],
           colors: ['green', 'hotpink', 'red', 'blue', 'orange'],
           data: [
-            { name: 'RNG', value: 25 },
-            { name: 'EDG', value: 75 },
-            { name: 'WE', value: 75 },
+            { name: 'RNG', value: 1125 },
+            { name: 'EDG', value: 175 },
+            { name: 'WE', value: 275 },
             { name: 'JDG', value: 800 },
-            { name: 'IG', value: 200 },
-            { name: 'WBG', value: 1200 },
-            { name: 'LNG', value: 1600 },
+            { name: 'IG', value: 1200 },
+            { name: 'WBG', value: 700 },
+            { name: 'LNG', value: 300 },
+            { name: 'LNG', value: 1300 },
           ]
         },
-        {
-          name: 'ZChart的饼图',
-          type: 'bar',
-          radius: [0, 50],
-          colors: ['green', 'hotpink', 'red', 'blue', 'orange'],
-          data: [
-            { name: 'RNG', value: 25 },
-            { name: 'EDG', value: 75 },
-            { name: 'WE', value: 75 },
-            { name: 'JDG', value: 800 },
-            { name: 'IG', value: 200 },
-            { name: 'WBG', value: 1200 },
-            { name: 'LNG', value: 1600 },
-          ]
-        },
-        {
-          name: 'ZChart的饼图',
-          type: 'bar',
-          radius: [0, 50],
-          colors: ['green', 'hotpink', 'red', 'blue', 'orange'],
-          data: [
-            { name: 'RNG', value: 25 },
-            { name: 'EDG', value: 75 },
-            { name: 'WE', value: 75 },
-            { name: 'JDG', value: 800 },
-            { name: 'IG', value: 200 },
-            { name: 'WBG', value: 1200 },
-            { name: 'LNG', value: 1600 },
-          ]
-        },
-        {
-          name: 'ZChart的饼图',
-          type: 'bar',
-          radius: [0, 50],
-          colors: ['green', 'hotpink', 'red', 'blue', 'orange'],
-          data: [
-            { name: 'RNG', value: 25 },
-            { name: 'EDG', value: 75 },
-            { name: 'WE', value: 75 },
-            { name: 'JDG', value: 800 },
-            { name: 'IG', value: 200 },
-            { name: 'WBG', value: 1200 },
-            { name: 'LNG', value: 1600 },
-          ]
-        },
-      ]
+      ],
+      animation: true
     }
     zcharts.setOption(option)
     window.addEventListener('resize', () => zcharts.resize())

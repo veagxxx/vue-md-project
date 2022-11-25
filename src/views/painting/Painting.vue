@@ -277,14 +277,16 @@
   // 绘画矩形
   const drawRectangle = (canvas: HTMLCanvasElement, width: number, height: number): void => {
     redrawCanvas(canvas)
+    _context.value.beginPath()
     _context.value.strokeStyle = color.value
+    _context.value.lineWidth = lineSize.value
     // 矩形(从鼠标点击位置到鼠标移动位置，参数1、2为起点，参数3、4为宽高)
     _context.value.strokeRect(center.x, center.y, width, height)
   }
   // 绘画三角形
   const drawTriangle = (canvas: HTMLCanvasElement, x: number, y: number): void => {
-    _context.value.beginPath()
     redrawCanvas(canvas)
+    _context.value.beginPath()
     if (paintBrush.value === DrawType.TRIANGLE) {
       // 左侧角起点
       _context.value.moveTo(center.x, y)
@@ -300,9 +302,9 @@
       // 右侧角
       _context.value.lineTo(x, y)
     }
-    _context.value.closePath()
-    _context.value.strokeWidth = lineSize.value
+    _context.value.lineWidth = lineSize.value
     _context.value.strokeStyle = color.value
+    _context.value.closePath()
     _context.value.stroke()
   }
   // 绘画圆
@@ -311,6 +313,7 @@
     redrawCanvas(canvas)
     _context.value.beginPath()
     _context.value.arc(x, y, radius, 0, 2 * Math.PI)
+    _context.value.lineWidth = lineSize.value
     _context.value.strokeStyle = color.value
     _context.value.stroke()
   }
@@ -327,6 +330,7 @@
     // 开启路径
     _context.value.beginPath()
     _context.value.ellipse(x, y, rx, ry, 0, 0, 2 * Math.PI)
+    _context.value.lineWidth = lineSize.value
     _context.value.strokeStyle = color.value
     _context.value.stroke()
   }

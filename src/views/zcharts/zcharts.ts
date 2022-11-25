@@ -1,4 +1,4 @@
-import Bar from './charts/BarChart';
+import SeriesChart from './charts/Chart';
 import { ChartData, Chart, Legend, Title, Option, ChartTypeData } from './type'
 
 interface ZCharts {
@@ -8,7 +8,7 @@ interface ZCharts {
   width: number; // canvas 宽
   height: number; // canvas 高
 }
-class ZCharts extends Bar implements ZCharts {
+class ZCharts extends SeriesChart implements ZCharts {
   private chartsDrawData: ChartTypeData[] = [] // 
   private option: Option | null = null
   private dpr: number = window.devicePixelRatio

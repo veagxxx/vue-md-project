@@ -14,6 +14,7 @@ const Layout = () => import("@/layout/index.vue")
 const Statistic = () => import('@/views/statistics/index.vue')
 const Painting = () => import ('@/views/painting/Painting.vue')
 const ZCharts = () => import('@/views/zcharts/index.vue')
+const Cropper = () => import('@/views/cropper/index.vue')
 const routes: Array<RouteRecordRaw> = [
   {
     path: '/',
@@ -28,6 +29,7 @@ const routes: Array<RouteRecordRaw> = [
       { path: '/statistics', component: Statistic },
       { path: '/fantastic', component: Painting },
       { path: '/z-charts', component: ZCharts },
+      { path: '/cropper', component: Cropper },
     ],
     meta: {
       title: "文档",

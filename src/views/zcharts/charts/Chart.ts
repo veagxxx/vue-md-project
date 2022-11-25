@@ -1,9 +1,9 @@
-import { Chart, Legend, Option } from "../type";
+import { Chart, ChartData, Legend, Option } from "../type";
 import Common from "./common";
 /**
  * class of Bar Chart
  */
-class Bar extends Common {
+class SeriesChart extends Common {
   private barChartMGW: number = 150 // 左右边距
   private barChartMGH: number = 50 // 上下边距
   private yAxisValue_Line_Gap: number = 50 // y轴刻度与线的距离
@@ -15,13 +15,15 @@ class Bar extends Common {
   private barGap: number = 0.2 // 柱体间隙(柱体宽度占比)
   private step: number = 50 // 动画速度
   private series: Chart[] = [] // 
+  private _max: number[] = [0, 0, 0]
   // 初始化柱状图
   initBarChart(
     option: Option, ctx: CanvasRenderingContext2D, canvas: HTMLCanvasElement
   ) {
     this.series = this._deepClone(option.series)
+    this.getMaxValueAndIndex(this.series)
     this.initBarFrame(option, ctx, canvas)
-    this.drawBar(option, ctx, canvas)
+    this.drawSeriesChart(option, ctx, canvas)
     this.initSeries()
   }
   /**
@@ -51,79 +53,146 @@ class Bar extends Common {
    * @param ctx 
    * @param canvas 
    */
-  private drawBar(
+  private drawSeriesChart(
     option: Option, ctx: CanvasRenderingContext2D, canvas: HTMLCanvasElement
   ) {
-    this.animation = option.animation === undefined ? this.animation : option.animation
+    this.animation = !!option.animation
     // 系列数据
     const series: Chart[] = this.series
+    // 柱体列数
+    const barSeriesLength: number = series.filter(item => item.type === 'bar').length
     // y轴0点
-    const zeroH: number = canvas.height - 3 * this.barChartMGH
+    const zeroH: number = canvas.height - 2 * this.barChartMGH
     // x轴0点
     const zeroX: number = this.barChartMGW + this.yAxisValue_Line_Gap
     // x坐标轴
     const xAxis: any[] = option.xAxis.data || []
     // 最大y轴高度
-    const maxLineH: number = zeroH / (this.maxValue / this.yAxisGap + 1) + this.barChartMGH
+    const maxLineH: number = zeroH / (this.maxValue / (this.yAxisGap + 1))
     // 最大x轴距离
     const maxLineW: number = canvas.width - 2 * this.barChartMGW - this.yAxisValue_Line_Gap
     // x 轴刻度平均值
     const average: number = maxLineW / (xAxis.length || Math.max(...series.map(s => s.data.length)) || 1)
-    // 柱状图高度
-    const barChartH: number = zeroH + this.barChartMGH
     // 宽度占比（1 + 数据数量 + 总间隙数量中等于多少个数据数量）
-    const Rate_W: number = 1 / (1 + series.length + this.barGap * (series.length - 1))
+    const Rate_W: number = 1 / (1 + barSeriesLength + this.barGap * (barSeriesLength - 1))
     // 柱体宽度
     const barW: number = average * Rate_W
     // 柱体间距
-    const barGap: number = series.length === 1 ? 0 : this.barGap * barW
+    const barGap: number = barSeriesLength === 1 ? 0 : this.barGap * barW
     const render = () => {
+      // 最后一条画图数据动画结束
+      if (
+        series[this._max[0]].data[this._max[1]].rate === this._max[2] &&
+        series[series.length - 1].data[series[series.length - 1].data.length - 1].rate === 
+        series[series.length - 1].data[series[series.length - 1].data.length - 1].value
+      ) {
+        this.animation = false
+      }
       ctx.clearRect(0, 0, canvas.width, canvas.height)
       this.initBarFrame(option, ctx, canvas)
       for (let i = 0; i < series.length; i++) {
+        const data: ChartData[] = series[i].data
         // 柱状图起点 x = zero(0点) + (barW/2 刻度左边距 + i * barW柱体宽度 + i * barGap 柱体间隙))
         let startX: number = zeroX + barW / 2 + i * (barW + barGap)
-        // ctx.clearRect(0, 0, canvas.width, canvas.height)
-        series[i].data.forEach((item, index) => {
-          ctx.beginPath()
-          // 获取颜色
-          // const colors: string[] = series[i].colors || []
-          ctx.fillStyle = this.defaultColors[i % this.defaultColors.length]
-          // 数值高度占比
-          const value_H_Rate: number = (this.animation ? (item.rate || 0) : item.value) / this.maxValue
-          // 主体高度
-          const barH: number = value_H_Rate * (barChartH - maxLineH)
-          ctx.rect(startX, barChartH, barW, -barH)
-          ctx.stroke()
-          ctx.fill()
-          ctx.closePath()
-          ctx.beginPath()
-          ctx.font = `${20}px 微软雅黑`
-          ctx.textBaseline = 'middle'
-          ctx.fillText(
-            item.value.toString(), 
-            startX + barW / 2, 
-            barChartH - value_H_Rate * (barChartH - maxLineH) - 10
-          )
-          ctx.closePath()
-          // 下一个柱体起点
-          startX += average
-          // 动画数据
+        // 折线图 x 起点
+        let lineStartX: number = zeroX
+        // const colors: string[] = series[i].colors || this.defaultColors
+        const color: string = this.defaultColors[i % this.defaultColors.length]
+        data.forEach((item, index) => {
+          if (series[i].type === 'bar') {
+            // 获取颜色
+            ctx.fillStyle = color
+            // 数值高度占比
+            const value_H_Rate: number = (this.animation ? (item.rate || 0) : item.value) / this.maxValue
+            // 主体高度
+            const barH: number = value_H_Rate * (zeroH - maxLineH)
+            this.drawBar(ctx, this.defaultColors[i % this.defaultColors.length], [startX, zeroH], barW, -barH)
+            ctx.beginPath()
+            ctx.font = `${20}px 微软雅黑`
+            ctx.textBaseline = 'middle'
+            ctx.fillText(
+              `${(this.animation ? (item.rate || 0) : item.value)}`, 
+              startX + barW / 2, 
+              zeroH - value_H_Rate * (zeroH - maxLineH) - 10
+            )
+            ctx.closePath()
+            // 下一个柱体起点
+            startX += average
+          } else if (series[i].type === 'line') {
+            const dataLength: number = data.length
+            // 数值高度占比
+            const value_H_Rate: number = (this.animation ? (item.rate || 0) : item.value) / this.maxValue
+            // next 数值高度占比
+            const value_H_Rate2: number = 
+              index < dataLength - 1 ? 
+              (this.animation ? (data[index + 1].rate || 0) : data[index + 1].value) / this.maxValue : 
+              value_H_Rate
+            // 线 y 开始点
+            const lineStartY: number = zeroH - value_H_Rate * (zeroH - maxLineH)
+            // 线 y 下一个点
+            const lineNextY: number = zeroH - value_H_Rate2 * (zeroH - maxLineH)
+            index === 0 && this.drawJoinCircle(ctx, [lineStartX + average / 2, lineStartY], color)
+            if (index !== dataLength - 1) {
+              // 画拐点圆，返回线的x，y偏移量
+              const [dX, dY] = this.drawJoinCircle(ctx, [lineStartX + 1.5 * average, lineNextY], color)
+              this.drawLine(
+                ctx, color,
+                [lineStartX + average / 2 + dX, lineStartY + (lineStartY < lineNextY ? dY : -dY)], 
+                [lineStartX + 1.5 * average - dX, lineNextY + (lineStartY < lineNextY ? -dY : dY)]
+              )
+            }
+            lineStartX += average
+          }
+          // 动画效果数据
           if (item.rate || item.rate === 0) {
             if (item.rate > item.value) {
               item.rate = item.value
             } else if (item.rate < item.value) {
               item.rate += this.step
-            }
+            } 
           }
         })
       }
       if (this.animation) {
         window.requestAnimationFrame(render)
-      }
+      } 
     }
     render()
-
+  }
+  /**
+   * 画柱状图
+   * @param ctx 
+   * @param color 
+   * @param start 
+   * @param width 
+   * @param height 
+   */
+  private drawBar = (
+    ctx: CanvasRenderingContext2D, color: string, start: [number, number], width: number, height: number
+  ) => {
+    ctx.beginPath()
+    ctx.rect(...start, width, height)
+    ctx.stroke()
+    ctx.fill()
+    ctx.closePath()
+  }
+  /**
+   * 画线
+   * @param ctx 
+   * @param color 
+   * @param startPoint 
+   * @param endPoint 
+   */
+  private drawLine = (
+    ctx: CanvasRenderingContext2D, color: string, startPoint: [number, number], endPoint: [number, number]
+  ) => {
+    ctx.beginPath()
+    ctx.lineWidth = 3
+    ctx.strokeStyle = color
+    ctx.moveTo(...startPoint)
+    ctx.lineTo(...endPoint)
+    ctx.stroke()
+    ctx.closePath()
   }
   /**
    * 画图例
@@ -190,10 +259,9 @@ class Bar extends Common {
   private drawYScaleValue(
     option: Option, ctx: CanvasRenderingContext2D, canvas: HTMLCanvasElement
   ) {
+    // 获取最大刻度
     if (option.yAxis.type || !option.yAxis.data) {
-      for (let i = 0; i < option.series.length; i++) {
-        this.maxValue = Math.max(this.maxValue, ...option.series[i].data.map(i => i.value))
-      }
+      this.maxValue = this._max[2]
     } else {
       this.yAxisList = option.yAxis.data ? <string[] | number[]>option.yAxis.data : []
     }
@@ -204,6 +272,7 @@ class Bar extends Common {
       ctx.textAlign = 'center'
       ctx.textBaseline = 'middle'
       this.yAxisGap = Math.ceil(this.maxValue / this.maxYScaleCount)
+      // 根据最大刻度获取刻度差
       this.yAxisGap = this.fillNumber(this.yAxisGap)
       if (this.maxValue % this.yAxisGap !== 0) {
         this.maxValue += this.yAxisGap - this.maxValue % this.yAxisGap
@@ -219,6 +288,7 @@ class Bar extends Common {
         ctx.beginPath()
         ctx.moveTo(this.barChartMGW + this.yAxisValue_Line_Gap, this.barChartMGH + index * average)
         ctx.lineTo(canvas.width - this.barChartMGW, this.barChartMGH + index * average)
+        ctx.lineWidth = 1
         ctx.strokeStyle = '#999'
         ctx.stroke()
         ctx.closePath()
@@ -247,33 +317,68 @@ class Bar extends Common {
       const length: number = option.xAxis.data.length
       // x 轴刻度平均值
       const average: number = (canvas.width - 2 * this.barChartMGW - this.yAxisValue_Line_Gap) / length
-      const zeroH: number = canvas.height - 3 * this.barChartMGH
+      const zeroH: number = canvas.height - 2 * this.barChartMGH
       const zeroX: number = this.barChartMGW + this.yAxisValue_Line_Gap
       let lastX: number = zeroX + average
       // x 轴刻度
       for (let i = 0; i < length; i++) {
-        ctx.moveTo(zeroX + average * i, zeroH + this.barChartMGH)
-        ctx.lineTo(zeroX + average * i, zeroH + this.barChartMGH + 15)
+        ctx.moveTo(zeroX + average * i, zeroH)
+        ctx.lineTo(zeroX + average * i, zeroH + 15)
         ctx.stroke()
-        ctx.fillText(xAxisList[i].toString(), (lastX + zeroX + average * i) / 2, zeroH + this.barChartMGH + 15)
+        ctx.fillText(xAxisList[i].toString(), (lastX + zeroX + average * i) / 2, zeroH + 15)
         lastX += average
       }
       ctx.closePath()
       // 最后一个 x 刻度
       ctx.beginPath()
-      ctx.moveTo(zeroX + average * length, zeroH + this.barChartMGH)
-      ctx.lineTo(zeroX + average * length, zeroH + this.barChartMGH + 15)
+      ctx.moveTo(zeroX + average * length, zeroH)
+      ctx.lineTo(zeroX + average * length, zeroH + 15)
       ctx.stroke()
       ctx.closePath()
     } else {
       return
     }
   }
+  /**
+   * 画折线图拐点，并返回拐点圆的[x, y]偏移量
+   * @param ctx 
+   * @param point 
+   * @returns 
+   */
+  private drawJoinCircle(ctx: CanvasRenderingContext2D, point: [number, number], color: string) {
+    ctx.beginPath()
+    const radius: number = 5
+    ctx.lineWidth = 3
+    ctx.strokeStyle = color
+    ctx.arc(...point, radius, 0, Math.PI * 2)
+    ctx.stroke()
+    ctx.closePath()
+    const angle: number = Math.atan2(point[1], point[0])
+    return [radius * Math.cos(angle), radius * Math.sin(angle)]
+  }
+  /**
+   * 生成刻度差
+   * @param num 
+   * @returns 
+   */
   private fillNumber(num: number): number {
     const length: number = num.toString().length
     const fill: number = 10 ** (length - 1)
     return num + fill - num % fill
   }
+  /**
+   * 获取最大y刻度值及其位置
+   * @param series 
+   */
+  private getMaxValueAndIndex(series: Chart[]) {
+    for (let i = 0; i < series.length; i++) {
+      for (let j = 0; j < series[i].data.length; j++) {
+        if (this._max[2] < series[i].data[j].value) {
+          this._max = [i, j, series[i].data[j].value]
+        }  
+      }
+    }
+  }
 }
 
-export default Bar
+export default SeriesChart
