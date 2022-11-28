@@ -1,7 +1,7 @@
 <template>
   <div class="cropper">
     <div class="cropper-container">
-      <Cropper/>
+      <Cropper url="src/assets/images/hyrz2.jpg"/>
     </div>
   </div>
 </template>
@@ -13,11 +13,12 @@ import Cropper from './components/Cropper.vue'
     padding: 10px 15px;
     background: #eee;
     height: calc(100% - 20px);
-    overflow: auto;
+    /* overflow: auto; */
     .cropper-container {
-      height: 100%;
+      height: calc(100% - 20px);
       background: #fff;
       padding: 10px;
+      overflow: auto;
     }
   }
 </style>
