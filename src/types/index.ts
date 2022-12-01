@@ -60,3 +60,6 @@ export enum DrawType {
   /** 填充 */
   FILL = 100
 }
+
+
+export type Omit<T, K extends keyof T> = Pick<T, Exclude<keyof T, K>>

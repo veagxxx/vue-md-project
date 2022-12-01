@@ -1,7 +1,7 @@
 <template>
   <div class="cropper">
     <div class="cropper-container">
-      <Cropper url="src/assets/images/hyrz2.jpg"/>
+      <Cropper circle/>
     </div>
   </div>
 </template>

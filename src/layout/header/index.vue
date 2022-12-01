@@ -26,7 +26,7 @@
           </el-menu-item>
         </el-sub-menu>
         <el-menu-item index="/fantastic">画图</el-menu-item>
-        <el-menu-item index="/cropper">切图</el-menu-item>
+        <el-menu-item index="/cropper">裁剪</el-menu-item>
         <el-menu-item index="/z-charts">图表</el-menu-item>
       </el-menu>
       <div class="icon-item" @click="handleOpenUpload">
@@ -36,7 +36,7 @@
       <el-tooltip place="bottom-start" content="源码地址">
         <div class="icon-item" @click="toGitHub()">
           <!-- <span>Github</span> -->
-          <el-icon><Gitgub /></el-icon>
+          <el-icon><Github /></el-icon>
         </div>
       </el-tooltip>
     </div>
@@ -49,7 +49,7 @@ import Upload from './components/Upload.vue'
 import { getMenus } from '@/controller/FsController'
 import { Router, useRoute, useRouter } from 'vue-router';
 import Skeleton from '@/components/icons/Skeleton.vue'
-import Gitgub from '@/components/icons/Github.vue'
+import Github from '@/components/icons/Github.vue'
 const route = useRoute()
 const github: string = 'https://github.com/veagxxx/vue-md-project'
 // import { IRouteMenu } from '@/types'

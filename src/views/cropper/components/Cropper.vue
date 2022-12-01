@@ -1,7 +1,7 @@
 <template>
   <div class="cropper-canvas">
     <canvas id="canvas"></canvas>
-    <canvas id="cropper-canvas"></canvas>
+    <canvas id="cropper-canvas" :style="{ borderRadius: circle ? '50%' : '' }"></canvas>
   </div>
   <div class="cropper-tools">
     <a type="button" class="cropper-upload__btn">
@@ -16,6 +16,8 @@
     </a>
     <button class="cropper-tools__btn primary ml-12" @click="onEnlarge">放大</button>
     <button class="cropper-tools__btn primary ml-12" @click="onShrink">缩小</button>
+    <button class="cropper-tools__btn primary ml-12" @click="onMosaic">马赛克</button>
+    <button class="cropper-tools__btn primary ml-12" @click="onReset">重置</button>
     <button 
       class="cropper-tools__btn primary ml-12" 
       @click="downloadCropper"
@@ -24,6 +26,10 @@
 </template>
 <script lang='ts' setup>
 import { onMounted, onUnmounted, reactive, ref } from 'vue';
+import { 
+  Canvas, Cropper, enlarge, shrink, downloadCropper, getRandomXYColor, setRandomXYColor, pointerInCropperBox
+} from './cropper'
+import { Omit } from '@/types/index'
 const props = defineProps({
   // 大图宽
   width: {
@@ -57,27 +63,34 @@ const props = defineProps({
     type: Number,
     default: () => 200
   },
+  circle: Boolean,
+  mosaicDeep: {
+    type: Number,
+    default: () => 10
+  }
 })
 // 缩放比例
 const dpr: number = 2
+// 
+const isMosaic = ref<boolean>(false)
 // 默认图片
 const URL = ref<string>(props.url ? props.url : 'src/views/cropper/components/images/hyrz.jpg')
-// const URL: string = 
-// 大画布参数
-const _canvas = reactive({
+// 大画布cavnas参数
+const _canvas = reactive<Canvas>({
   ctx: null as any,
   canvas: null as any,
   width: props.width,
   height: props.height,
 })
 // 裁剪参数
-const _cropper = reactive({
+const _cropper = reactive<Cropper>({
   left: 0, // 起点x
   top: 0, // 起点y
   width: props.cropperBoxWidth, // 宽度
   height: props.cropperBoxHeight, // 高度
 })
-const cropperCanvas = reactive({
+// 小画布canvas参数
+const cropperCanvas = reactive<Omit<Canvas, 'canvas'>>({
   ctx: null as any,
   width: props.cropperWidth,
   height: props.cropperHeight
@@ -87,6 +100,8 @@ onMounted(() => {
   initCanvas()
   initCanvasImage()
 })
+// 存放马赛克图片
+const mosaicData = ref<ImageData[]>([])
 // 初始化画布
 const initCanvas = () => {
   const canvas = document.getElementById('canvas') as HTMLCanvasElement
@@ -130,43 +145,57 @@ const initCropperBox = () => {
   _canvas.ctx.fillStyle = 'rgba(60, 60, 60, 0.5)'
   _canvas.ctx.fillRect(_cropper.left, _cropper.top, _cropper.width, _cropper.height)
   _canvas.ctx.closePath()
-  _canvas.ctx.beginPath()
-  _canvas.ctx.fillStyle = 'hotpink'
-  _canvas.ctx.font = '25px Arial'
-  _canvas.ctx.textBaseline = 'middl'
-  _canvas.ctx.fillText(`${_cropper.width}×${_cropper.height}`, _cropper.left, _cropper.top + 25)
-  _canvas.ctx.closePath()
+  fillSizeText()
+}
+const fillSizeText = () => {
+  if (!isMosaic.value) {
+    _canvas.ctx.beginPath()
+    _canvas.ctx.fillStyle = 'hotpink'
+    _canvas.ctx.font = '25px Arial'
+    _canvas.ctx.textBaseline = 'middle'
+    _canvas.ctx.fillText(`${_cropper.width}×${_cropper.height}`, _cropper.left, _cropper.top + 25)
+    _canvas.ctx.closePath()
+  }
 }
 // 填充图片
 const initCanvasImage = () => {
-  const img: HTMLImageElement = new Image()
-  img.src = URL.value
-  img.onload = () => {
-    _canvas.ctx.clearRect(0, 0, _canvas.width, _canvas.height)
-    _canvas.ctx.drawImage(img, 0, 0, _canvas.width, _canvas.height)
-    const pattern = _canvas.ctx.createPattern(img, 'no-repeat')
-    _canvas.ctx.fillStyle = pattern
-    drawCropper(_canvas.ctx.getImageData(_cropper.left, _cropper.top, _cropper.width, _cropper.height))
-    initCropperBox()
-  }
+  return new Promise<void>((resolve, reject) => {
+    const img: HTMLImageElement = new Image()
+    img.src = URL.value
+    img.onload = () => {
+      _canvas.ctx.clearRect(0, 0, _canvas.width, _canvas.height)
+      if (mosaicData.value.length) {
+        _canvas.ctx.putImageData(mosaicData.value[0], 0, 0)
+      } else {
+        _canvas.ctx.drawImage(img, 0, 0, _canvas.width, _canvas.height)
+      }
+      const pattern: any = _canvas.ctx.createPattern(img, 'no-repeat')
+      _canvas.ctx.fillStyle = pattern
+      drawCropper(_canvas.ctx.getImageData(_cropper.left, _cropper.top, _cropper.width, _cropper.height))
+      if (!isMosaic.value) {
+        initCropperBox()
+      }
+      resolve()
+    }
+  })
 }
 // 点击画布裁剪
-const onCropperDown = (e: MouseEvent) => {
+const onCropperClick = (e: MouseEvent) => {
   const { left, top }: { left: number, top: number } = _canvas.canvas.getBoundingClientRect()
   croppering.value = true
   const [x, y]: number[] = [(e.pageX - left) * dpr, (e.pageY - top) * dpr]
   // 点击位置不在裁剪盒子位置，移动裁剪盒子
   if ((x > _cropper.width || y > _cropper.height) || (x < _cropper.width || y < _cropper.width)) {
     movePosition(x, y)
+    initCanvasImage()
   }
-  console.log(_canvas.ctx.getImageData(_cropper.left, _cropper.top + 25, 100, 25))
-  initCanvasImage()
 }
 // 移动裁剪盒子
 const onCropperMove = (e: MouseEvent) => {
+  const { left, top }: { left: number, top: number } = _canvas.canvas.getBoundingClientRect()
+  const [x, y]: number[] = [(e.pageX - left) * dpr, (e.pageY - top) * dpr]
+  _canvas.canvas.style.cursor = pointerInCropperBox([x, y], _cropper) ? 'all-scroll' : 'pointer'
   if (croppering.value) {
-    const { left, top }: { left: number, top: number } = _canvas.canvas.getBoundingClientRect()
-    const [x, y]: number[] = [(e.pageX - left) * dpr, (e.pageY - top) * dpr]
     movePosition(x, y)
     initCanvasImage()
   }
@@ -204,60 +233,66 @@ const onChange = (e: any) => {
 }
 // 放大
 const onEnlarge = () => {
-  const minEdge: number = Math.min(_canvas.height, _canvas.width)
-  if (_cropper.width < minEdge) {
-    _cropper.width += (props.cropperBoxWidth / 10)
-    _cropper.height += (props.cropperBoxHeight / 10)
-    _cropper.width = Math.min(minEdge, _cropper.width)
-    _cropper.height = Math.min(minEdge, _cropper.height)
-    const diffW: number = _cropper.width + _cropper.left - _canvas.width
-    const diffH: number = _cropper.height + _cropper.top - _canvas.height
-    if (diffW > 0) {
-      _cropper.left -= diffW
-    }
-    if (diffH > 0) {
-      _cropper.top -= diffH
-    }
-    initCanvasImage()
-  }
+  enlarge(
+    { 
+      _cropper, 
+      _canvas, 
+      cropperBoxWidth: props.cropperBoxWidth, 
+      cropperBoxHeight: props.cropperBoxHeight 
+    }, 
+    initCanvasImage
+  )
 }
 // 缩小
 const onShrink = () => {
-  const minEdge: number = Math.min(props.cropperBoxHeight, props.cropperBoxWidth)
-  if (_cropper.width > minEdge / 2) {
-    _cropper.width -= (props.cropperBoxWidth / 10)
-    _cropper.height -= (props.cropperBoxHeight / 10)
-    initCanvasImage()
-  }
+  shrink(_cropper, props.cropperBoxWidth, props.cropperBoxHeight, initCanvasImage)
 }
-// 下载切图
-const downloadCropper = () => {
-  const canvas = <HTMLCanvasElement>document.getElementById('cropper-canvas')
-  // a 标签
-  const a: HTMLAnchorElement = document.createElement('a')
-  a.style.display = 'none'
-  const href: string = canvas.toDataURL()
-  a.href = href
-  // 下载后文件名
-  a.download = 'cropper'
-  document.body.appendChild(a)
-  // 点击下载
-  a.click()
-  // 下载完成移除元素
-  document.body.removeChild(a)
-  // 释放掉blob对象
-  window.URL.revokeObjectURL(href)
+// 马赛克
+const onMosaic = async () => {
+  isMosaic.value = true
+  await initCanvasImage()
+  const imgData: ImageData = _canvas.ctx.getImageData(_cropper.left, _cropper.top, _cropper.width, _cropper.height)
+  const imgWidth: number = imgData.width
+  const imgHeight: number = imgData.height
+  const deep: number = props.mosaicDeep
+  const [stepW, stepH]: [number, number] = [imgWidth / deep, imgHeight / deep]
+  for (let i = 0; i < stepH; i++) {
+    for (let j = 0; j < stepW; j++) {
+      const color: number[] = getRandomXYColor(
+        imgData, j * deep + Math.floor(Math.random() * deep), i * deep + Math.floor(Math.random() * deep)
+      )
+      for (let k = 0; k < deep; k++) {
+        for (let l = 0; l < deep; l++) {
+          setRandomXYColor(imgData, j * deep + l, i * deep + k, color)
+        }
+      }
+    }
+  }
+  _canvas.ctx.putImageData(imgData, _cropper.left, _cropper.top)
+  mosaicData.value[0] = _canvas.ctx.getImageData(0, 0, _canvas.width, _canvas.height)
+  initCropperBox()
+  drawCropper(imgData)
+  isMosaic.value = false
+}
+// 重置
+const onReset = () => {
+  _cropper.width = props.cropperBoxWidth
+  _cropper.height = props.cropperBoxHeight
+  _cropper.top = 0
+  _cropper.left = 0
+  mosaicData.value.length = 0
+  initCanvasImage()
 }
 // 创建事件
 const createEvent = (canvas: HTMLCanvasElement) => {
-  canvas.addEventListener('mousedown', (e: MouseEvent) => onCropperDown(e))
+  canvas.addEventListener('mousedown', (e: MouseEvent) => onCropperClick(e))
   canvas.addEventListener('mousemove', (e: MouseEvent) => onCropperMove(e))
   canvas.addEventListener('mouseup', stopCropper)
   canvas.addEventListener('mouseleave', stopCropper)
 }
 // 销毁事件
 const destoryEvent = (canvas: HTMLCanvasElement) => {
-  canvas.removeEventListener('mousedown', onCropperDown)
+  canvas.removeEventListener('mousedown', onCropperClick)
   canvas.removeEventListener('mousemove', onCropperMove)
   canvas.removeEventListener('mouseup', stopCropper)
   canvas.removeEventListener('mouseleave', stopCropper)
