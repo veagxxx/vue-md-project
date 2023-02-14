@@ -6,7 +6,7 @@
   </div>
 </template>
 <script lang='ts' setup>
-  import { onMounted, onUnmounted, ref } from 'vue';
+  import { onMounted } from 'vue';
   import ZCharts from './zcharts'
   import { Option } from './type'
 

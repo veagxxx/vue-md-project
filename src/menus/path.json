@@ -1,1 +1,25 @@
-[{"name":"表单系统","path":"/form","doc":"form.md", "date": "2022-07-11 15:33"},{"name":"个人笔记","path":"/notes","doc":"notes.md", "date":"2022-07-11 16:01"},{"name":"哈哈哈","path":"/collector","doc":"collections.md", "date": "2022-07-14 10:12"},{"name":"排序算法","path":"/sort","doc":"排序算法.md", "date":"2022-09-29 15:15"}]
+[
+	{
+		"name": "表单系统",
+		"path": "/form",
+		"doc": "form.md",
+		"date": "2022-07-11 15:33"
+	},
+	{
+		"name": "个人笔记",
+		"path": "/notes",
+		"doc": "notes.md",
+		"date": "2022-07-11 16:01"
+	},
+	{
+		"name": "排序算法",
+		"path": "/sort",
+		"doc": "排序算法.md",
+		"date": "2022-09-29 15:15"
+	},
+	{
+		"name": "CropperV3",
+		"path": "/cropperV3-doc",
+		"doc": "CropperV3.md"
+	}
+]

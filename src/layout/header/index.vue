@@ -8,13 +8,12 @@
       <el-menu
         :default-active="route.path"
         mode="horizontal"
-        :ellipsis="false"
+        :ellipsis="true"
         @select="handleSelect"
         router
         active-text-color="#36ad6a"
       >
         <el-menu-item index="/guide">指南</el-menu-item>
-        <el-menu-item index="/statistics">统计</el-menu-item>
         <el-sub-menu index="">
           <template #title>文档</template>
           <el-menu-item  
@@ -25,17 +24,18 @@
             {{ item.name }}  
           </el-menu-item>
         </el-sub-menu>
+        <el-menu-item index="/statistics">统计</el-menu-item>
         <el-menu-item index="/fantastic">画图</el-menu-item>
-        <el-menu-item index="/cropper">裁剪</el-menu-item>
         <el-menu-item index="/z-charts">图表</el-menu-item>
+        <el-menu-item index="/cropper">裁剪</el-menu-item>
+        <el-menu-item index="/jigsaw">拼图</el-menu-item>
+        <el-menu-item index="/mirror">组件</el-menu-item>
       </el-menu>
       <div class="icon-item" @click="handleOpenUpload">
         <span>上传</span>
-        <!-- <el-icon><UploadFilled /></el-icon> -->
       </div>
       <el-tooltip place="bottom-start" content="源码地址">
         <div class="icon-item" @click="toGitHub()">
-          <!-- <span>Github</span> -->
           <el-icon><Github /></el-icon>
         </div>
       </el-tooltip>
@@ -87,13 +87,13 @@ onMounted(() => {
     justify-content: space-between;
     height: 100%;
     user-select: none;
+    margin: 0 20px;
     .header-left {
       width: 30%;
       height: 100%;
       display: flex;
       align-items: center;
       font-size: 20px;
-      margin-left: 20px;
       font-weight: 600;
       color: #36ad6a;
       :deep(.el-icon) {

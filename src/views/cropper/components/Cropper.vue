@@ -25,50 +25,20 @@
   </div>
 </template>
 <script lang='ts' setup>
-import { onMounted, onUnmounted, reactive, ref } from 'vue';
+import { onBeforeUnmount, onMounted, reactive, ref } from 'vue';
 import { 
-  Canvas, Cropper, enlarge, shrink, downloadCropper, getRandomXYColor, setRandomXYColor, pointerInCropperBox
+  Canvas, 
+  Cropper, 
+  enlarge, 
+  shrink, 
+  downloadCropper, 
+  getRandomXYColor, 
+  setRandomXYColor, 
+  pointerInCropperBox,
+  cropperProps,
 } from './cropper'
 import { Omit } from '@/types/index'
-const props = defineProps({
-  // 大图宽
-  width: {
-    type: Number,
-    default: () => 700
-  },
-  // 大图高
-  height: {
-    type: Number,
-    default: () => 400
-  },
-  // 图片url
-  url: String,
-  // 裁剪盒子宽
-  cropperBoxWidth: {
-    type: Number,
-    default: () => 350
-  },
-  // 裁剪盒子高
-  cropperBoxHeight: {
-    type: Number,
-    default: () => 350
-  },
-  // 裁剪图宽
-  cropperWidth: {
-    type: Number,
-    default: () => 200
-  },
-  // 裁剪图高
-  cropperHeight: {
-    type: Number,
-    default: () => 200
-  },
-  circle: Boolean,
-  mosaicDeep: {
-    type: Number,
-    default: () => 10
-  }
-})
+const props = defineProps(cropperProps)
 // 缩放比例
 const dpr: number = 2
 // 
@@ -283,8 +253,18 @@ const onReset = () => {
   mosaicData.value.length = 0
   initCanvasImage()
 }
+// 取色
+const onColoring = (e: MouseEvent) => {
+  const { left, top }: { left: number, top: number } = _canvas.canvas.getBoundingClientRect()
+  const [x, y]: number[] = [(e.pageX - left) * dpr, (e.pageY - top) * dpr]
+  const color = _canvas.ctx.getImageData(x, y, 1, 1)
+  const [r, g, b] = color.data
+  const hex: string = `#${((1 << 24) + (r << 16) + (g << 8) + b).toString(16).slice(1)}`
+  console.log(`%c rgb(${r}, ${g}, ${b})`, `color: ${hex}`)
+}
 // 创建事件
 const createEvent = (canvas: HTMLCanvasElement) => {
+  canvas.addEventListener('click', (e: MouseEvent) => onColoring(e))
   canvas.addEventListener('mousedown', (e: MouseEvent) => onCropperClick(e))
   canvas.addEventListener('mousemove', (e: MouseEvent) => onCropperMove(e))
   canvas.addEventListener('mouseup', stopCropper)
@@ -297,7 +277,7 @@ const destoryEvent = (canvas: HTMLCanvasElement) => {
   canvas.removeEventListener('mouseup', stopCropper)
   canvas.removeEventListener('mouseleave', stopCropper)
 }
-onUnmounted(() => {
+onBeforeUnmount(() => {
   destoryEvent(_canvas.canvas)
 })
 </script>

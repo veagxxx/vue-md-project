@@ -3,15 +3,15 @@
     <el-card class="paint-card">
       <template #header>
         <div class="paint-header">
-          <div class="header-title"><DrawingBoard color="blue"/>&nbsp;画图</div>
+          <div class="header-title"><DrawingBoard color="hotpink"/>&nbsp;画图</div>
           <el-color-picker :predefine="predefineColors" v-model="color" />
           <TooltipButton
             className="purple"
             type="text"
             :icon="EditPen"
             content="画笔"
-            :callback="() => setPaintBrush(1)"
-            :selected="paintBrush === 1"
+            :callback="() => setPaintBrush(DrawType.LINE)"
+            :selected="paintBrush === DrawType.LINE"
           >
           </TooltipButton>
           <TooltipButton
@@ -19,7 +19,7 @@
             :icon="LineSize"
             content="大小"
             placement="bottom"
-            :disabled="paintBrush === 100"
+            :disabled="paintBrush === DrawType.FILL"
           >
             <div 
               class="flex pointer line-size" 
@@ -35,12 +35,64 @@
           <TooltipButton
             content="填充" 
             type="text" 
-            :callback="() => setPaintBrush(100)"
-            :selected="paintBrush === 100"
+            :callback="() => setPaintBrush(DrawType.FILL)"
+            :selected="paintBrush === DrawType.FILL"
           >
             <template #icon>
               <ColorFill/>
             </template>
+          </TooltipButton>
+          <TooltipButton 
+            content="形状" 
+            className="purple" 
+            type="text" 
+            :icon="Shape" 
+            placement="bottom"
+          >
+            <div class="graph">
+              <div title="直线" class="straight-line" @click="setPaintBrush(DrawType.STRAIGHTLINE)">
+                <svg xmlns="http://www.w3.org/2000/svg">
+                  <polygon
+                    points="0,0 12,12"
+                    style="stroke: #666; stroke-width: 1; fill: #fff"
+                    :style="paintBrush === DrawType.STRAIGHTLINE ? { stroke: 'hotpink' } : {}"
+                  ></polygon>
+                </svg>
+              </div>
+              <div title="矩形" 
+                class="rectangle" 
+                :class="{ 'selected-border': paintBrush === DrawType.RECTANGLE }"
+                @click="setPaintBrush(DrawType.RECTANGLE)"
+              ></div>
+              <div title="三角形" class="triangle" @click="setPaintBrush(DrawType.TRIANGLE)">
+                <svg xmlns="http://www.w3.org/2000/svg">
+                  <polygon 
+                    points="6,0 0,12 12,12" 
+                    style="stroke: #666; stroke-width: 1; fill: #fff"
+                    :style="paintBrush === DrawType.TRIANGLE ? { stroke: 'hotpink' } : {}"
+                  ></polygon>
+                </svg>
+              </div>
+              <div title="直角三角形" class="triangle" @click="setPaintBrush(DrawType.RIGHTANGLE)">
+                <svg xmlns="http://www.w3.org/2000/svg">
+                  <polygon 
+                    points="0,0 0,12 12,12" 
+                    style="stroke: #666; stroke-width: 1; fill: #fff"
+                    :style="paintBrush === DrawType.RIGHTANGLE ? { stroke: 'hotpink' } : {}"
+                  ></polygon>
+                </svg>
+              </div>
+              <div title="圆形" 
+                class="circle" 
+                @click="setPaintBrush(DrawType.CIRCLE)" 
+                :class="{ 'selected-border': paintBrush === DrawType.CIRCLE }"
+              ></div>
+              <div title="椭圆" 
+                class="ellipse" 
+                @click="setPaintBrush(DrawType.ELLIPSE)" 
+                :class="{ 'selected-border': paintBrush === DrawType.ELLIPSE }"
+              ></div>
+            </div>
           </TooltipButton>
           <TooltipButton 
             content="撤销" 
@@ -57,58 +109,6 @@
             :callback="clearCanvas"
           ></TooltipButton>
           <TooltipButton 
-            content="形状" 
-            className="purple" 
-            type="text" 
-            :icon="Shape" 
-            placement="bottom"
-          >
-            <div class="graph">
-              <div title="直线" class="straight-line" @click="setPaintBrush(2)">
-                <svg xmlns="http://www.w3.org/2000/svg">
-                  <polygon
-                    points="0,0 12,12"
-                    style="stroke: #666; stroke-width: 1; fill: #fff"
-                    :style="paintBrush === 2 ? { stroke: 'hotpink' } : {}"
-                  ></polygon>
-                </svg>
-              </div>
-              <div title="矩形" 
-                class="rectangle" 
-                :class="{ 'selected-border': paintBrush === 3 }"
-                @click="setPaintBrush(3)"
-              ></div>
-              <div title="三角形" class="triangle" @click="setPaintBrush(4)">
-                <svg xmlns="http://www.w3.org/2000/svg">
-                  <polygon 
-                    points="6,0 0,12 12,12" 
-                    style="stroke: #666; stroke-width: 1; fill: #fff"
-                    :style="paintBrush === 4 ? { stroke: 'hotpink' } : {}"
-                  ></polygon>
-                </svg>
-              </div>
-              <div title="直角三角形" class="triangle" @click="setPaintBrush(5)">
-                <svg xmlns="http://www.w3.org/2000/svg">
-                  <polygon 
-                    points="0,0 0,12 12,12" 
-                    style="stroke: #666; stroke-width: 1; fill: #fff"
-                    :style="paintBrush === 5 ? { stroke: 'hotpink' } : {}"
-                  ></polygon>
-                </svg>
-              </div>
-              <div title="圆形" 
-                class="circle" 
-                @click="setPaintBrush(6)" 
-                :class="{ 'selected-border': paintBrush === 6 }"
-              ></div>
-              <div title="椭圆" 
-                class="ellipse" 
-                @click="setPaintBrush(7)" 
-                :class="{ 'selected-border': paintBrush === 7 }"
-              ></div>
-            </div>
-          </TooltipButton>
-          <TooltipButton 
             content="下载" 
             className="primary" 
             type="text" 
@@ -118,7 +118,7 @@
         </div>
       </template>
       <div class="paint-body" id="paint-body" 
-        :class="{ brush: paintBrush === 1, graphCur: paintBrush && paintBrush !== 1 }"
+        :class="{ brush: paintBrush === DrawType.LINE, graphCur: paintBrush && paintBrush !== DrawType.LINE }"
       >
         <canvas id="canvas"></canvas>
       </div>
@@ -253,6 +253,7 @@
         case DrawType.ELLIPSE:
           const ellipse = getEllipseData(canvas, e, center)
           drawEllipse(canvas, ellipse.centerX, ellipse.centerY, ellipse.axisX, ellipse.axisY)
+          break
         default:
           return;
       }
@@ -368,7 +369,7 @@
   // 填充画布
   const fillCanvas = (graph: Draw) => {
     _context.value.fillStyle = color.value
-    // _context.value.globalCompositeOperation = 'xor'
+    _context.value.globalCompositeOperation = 'xor'
     if (graph) {
       if (graph.type === 'rectangle') {
         _context.value.fillRect(...graph.point, (<Rectangle>graph).width, (<Rectangle>graph).height)
@@ -420,7 +421,7 @@
     window.URL.revokeObjectURL(href)
   }
 
-  onMounted(async () => {
+  onMounted(() => {
     initCanvas()
   })
   onBeforeUnmount(() => {
@@ -451,7 +452,7 @@
           display: flex;
           align-items: center;
           font-weight: bold;
-          color:green;
+          color:hotpink;
           user-select: none;
           text-shadow: 0 0 1px currentColor,
               -1px -1px 1px #000,
@@ -463,14 +464,10 @@
               -1px 1px 1px #000,
               -1px 0 1px #000;
         }
-        .el-button {
-          font-size: 120%;
-        }
       }
       .paint-body {
         width: 100%;
         border: 1px solid #ddd;
-        border-radius: 5px;
         height: calc(100% - 129px);
         box-shadow: 0px 0px 0px 1px #ddd;
       }

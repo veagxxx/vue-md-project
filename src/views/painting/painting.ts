@@ -137,7 +137,7 @@ export const initPoint = (ctx: CanvasRenderingContext2D) => {
 }
 // 获取圆的数据
 export const getCircleData = (canvas: HTMLCanvasElement, e: MouseEvent, startPoint: Point) => {
-  const { left, top }  = canvas.getBoundingClientRect()
+  const { left, top } = canvas.getBoundingClientRect()
   // 当前鼠标位置与点击位置 x 距离
   const _x: number = e.pageX - left - startPoint.x
   // 当前鼠标位置与点击位置 y 距离
@@ -151,10 +151,12 @@ export const getCircleData = (canvas: HTMLCanvasElement, e: MouseEvent, startPoi
 }
 // 获取椭圆数据
 export const getEllipseData = (canvas: HTMLCanvasElement, e: MouseEvent, startPoint: Point) => {
-  const { left, top }  = canvas.getBoundingClientRect()
+  const { left, top } = canvas.getBoundingClientRect()
   // x，y 半轴
-  const axisX: number = (e.pageX - left - startPoint.x) / 2
-  const axisY: number = (e.pageY - top - startPoint.y) / 2
+  let axisX: number = (e.pageX - left - startPoint.x) / 2
+  let axisY: number = (e.pageY - top - startPoint.y) / 2
+  axisX = axisX < 0 ? -axisX : axisX
+  axisY = axisY < 0 ? -axisY : axisY
   // 椭圆中心 x 
   const centerX: number = axisX + Math.min(e.pageX - left, startPoint.x)
   // 椭圆中心 y 
@@ -169,59 +171,59 @@ export const addDraw = (
   startPoint: Point,
   color: string,
 ) => {
-  const { left, top }  = canvas.getBoundingClientRect()
-    let draw: Draw | any = null
-    switch (paintBrush) {
-      case DrawType.LINE:
-        return
-      case DrawType.STRAIGHTLINE:
-        draw = {
-          type: drawType[paintBrush],
-          point: [startPoint.x, startPoint.y],
-          endPoint: [e.pageX - left, e.pageY - top],
-          color: color
-        }
-        break
-      case DrawType.RECTANGLE:
-      case DrawType.TRIANGLE:
-      case DrawType.RIGHTANGLE:
-        draw = {
-          type: drawType[paintBrush],
-          point: [startPoint.x, startPoint.y],
-          width: e.pageX - left - startPoint.x,
-          height: e.pageY - top - startPoint.y,
-          color: color,
-          fill: false,
-        }
-        if (paintBrush === DrawType.RIGHTANGLE) {
-          draw.rightAngle = true
-        }
-        break
-      case DrawType.CIRCLE: 
-        const circle = getCircleData(canvas, e, startPoint)
-        draw = {
-          type: drawType[paintBrush],
-          point: [circle.centerX, circle.centerY],
-          radius: circle.radius,
-          color: color,
-          fill: false
-        }   
-        break
-      case DrawType.ELLIPSE:
-        const ellipse = getEllipseData(canvas, e, startPoint)
-        draw = {
-          type: drawType[paintBrush],
-          point: [ellipse.centerX, ellipse.centerY],
-          axisX: ellipse.axisX,
-          axisY: ellipse.axisY,
-          color: color,
-          fill: false
-        }
-        break
-      default:
-        return
-    }
-    draw && points.push(draw)
+  const { left, top } = canvas.getBoundingClientRect()
+  let draw: Draw | any = null
+  switch (paintBrush) {
+    case DrawType.LINE:
+      return
+    case DrawType.STRAIGHTLINE:
+      draw = {
+        type: drawType[paintBrush],
+        point: [startPoint.x, startPoint.y],
+        endPoint: [e.pageX - left, e.pageY - top],
+        color: color
+      }
+      break
+    case DrawType.RECTANGLE:
+    case DrawType.TRIANGLE:
+    case DrawType.RIGHTANGLE:
+      draw = {
+        type: drawType[paintBrush],
+        point: [startPoint.x, startPoint.y],
+        width: e.pageX - left - startPoint.x,
+        height: e.pageY - top - startPoint.y,
+        color: color,
+        fill: false,
+      }
+      if (paintBrush === DrawType.RIGHTANGLE) {
+        draw.rightAngle = true
+      }
+      break
+    case DrawType.CIRCLE: 
+      const circle = getCircleData(canvas, e, startPoint)
+      draw = {
+        type: drawType[paintBrush],
+        point: [circle.centerX, circle.centerY],
+        radius: circle.radius,
+        color: color,
+        fill: false
+      }   
+      break
+    case DrawType.ELLIPSE:
+      const ellipse = getEllipseData(canvas, e, startPoint)
+      draw = {
+        type: drawType[paintBrush],
+        point: [ellipse.centerX, ellipse.centerY],
+        axisX: ellipse.axisX,
+        axisY: ellipse.axisY,
+        color: color,
+        fill: false
+      }
+      break
+    default:
+      return
+  }
+  draw && points.push(draw)
 }
 /**
  * 判断点是否在圆内，根据圆的标准方程(x - a)² + (y - b)² = r²，圆心坐标(a, b)，半径 r

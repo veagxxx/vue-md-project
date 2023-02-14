@@ -10,6 +10,8 @@
     "node-server": "node src/server/index.js"
   },
   "dependencies": {
+    "@codemirror/lang-javascript": "^6.1.2",
+    "@codemirror/theme-one-dark": "^6.1.0",
     "@element-plus/icons-vue": "^2.0.6",
     "@types/express": "^4.17.13",
     "@types/node": "^18.0.3",
@@ -29,6 +31,7 @@
     "vite-plugin-commonjs-externals": "^0.1.1",
     "vite-plugin-markdown": "^2.0.2",
     "vue": "^3.2.25",
+    "vue-codemirror": "^6.1.1",
     "vue-markdown-loader": "^2.5.0",
     "vue-router": "^4.0.16"
   },

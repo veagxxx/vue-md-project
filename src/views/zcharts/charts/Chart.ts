@@ -21,6 +21,8 @@ class SeriesChart extends Common {
     option: Option, ctx: CanvasRenderingContext2D, canvas: HTMLCanvasElement
   ) {
     this.series = this._deepClone(option.series)
+    const chartGap = option.chartGap
+    this.barChartMGW = chartGap?.lr ? chartGap?.lr : this.barChartMGW
     this.getMaxValueAndIndex(this.series)
     this.initBarFrame(option, ctx, canvas)
     this.drawSeriesChart(option, ctx, canvas)
@@ -67,8 +69,13 @@ class SeriesChart extends Common {
     const zeroX: number = this.barChartMGW + this.yAxisValue_Line_Gap
     // x坐标轴
     const xAxis: any[] = option.xAxis.data || []
-    // 最大y轴高度
-    const maxLineH: number = zeroH / (this.maxValue / (this.yAxisGap + 1))
+    // y轴刻度数
+    const length: number = this.maxValue / this.yAxisGap + 1
+    // 平均y轴刻度间隔
+    const average_Y_Gap: number = (canvas.height - 3 * this.barChartMGH) / length
+    // 最大y轴位置（上边距+第一个y轴刻度）
+    const maxLineH: number = this.barChartMGH + average_Y_Gap
+    // const maxLineH: number = zeroH / (this.maxValue / (this.yAxisGap + 1))
     // 最大x轴距离
     const maxLineW: number = canvas.width - 2 * this.barChartMGW - this.yAxisValue_Line_Gap
     // x 轴刻度平均值
@@ -100,13 +107,11 @@ class SeriesChart extends Common {
         const color: string = this.defaultColors[i % this.defaultColors.length]
         data.forEach((item, index) => {
           if (series[i].type === 'bar') {
-            // 获取颜色
-            ctx.fillStyle = color
             // 数值高度占比
             const value_H_Rate: number = (this.animation ? (item.rate || 0) : item.value) / this.maxValue
             // 主体高度
             const barH: number = value_H_Rate * (zeroH - maxLineH)
-            this.drawBar(ctx, this.defaultColors[i % this.defaultColors.length], [startX, zeroH], barW, -barH)
+            this.drawBar(ctx, color, [startX, zeroH], barW, -barH)
             ctx.beginPath()
             ctx.font = `${20}px 微软雅黑`
             ctx.textBaseline = 'middle'
@@ -167,10 +172,11 @@ class SeriesChart extends Common {
    * @param width 
    * @param height 
    */
-  private drawBar = (
+  private drawBar (
     ctx: CanvasRenderingContext2D, color: string, start: [number, number], width: number, height: number
-  ) => {
+  ) {
     ctx.beginPath()
+    ctx.fillStyle = color
     ctx.rect(...start, width, height)
     ctx.stroke()
     ctx.fill()
@@ -183,9 +189,9 @@ class SeriesChart extends Common {
    * @param startPoint 
    * @param endPoint 
    */
-  private drawLine = (
+  private drawLine (
     ctx: CanvasRenderingContext2D, color: string, startPoint: [number, number], endPoint: [number, number]
-  ) => {
+  ) {
     ctx.beginPath()
     ctx.lineWidth = 3
     ctx.strokeStyle = color
@@ -212,7 +218,11 @@ class SeriesChart extends Common {
       // 图例字体大小
       const l_fontSize: number = legend.fontSize || this.legend_text_size
       // 字体总宽度
-      const fontW: number = legend.data.map((item: string) => item.length).reduce((pre: number, cur: number) => pre + cur, 0) * l_fontSize
+      const fontW: number = legend.data.map(
+        (item: string) => item.length
+      ).reduce(
+        (pre: number, cur: number) => pre + cur, 0
+      ) * l_fontSize
       // 图例总宽度
       const legendW: number = legend.data.length * lWid
       // 图例间距总宽度

@@ -2,7 +2,7 @@
   <!-- <article class="markdown-body" v-html="content"></article> -->
   <div class="my-md">
     <div class="editor">
-      <md-editor
+      <MdEditor
         v-model="state.text"
         :editorId="state.id"
         preview-only
@@ -11,7 +11,7 @@
     </div>
     <div class="catalog">
       <div class="affix">
-        <md-catalog
+        <MdCatalog
           :editorId="state.id"
           :scroll-element="'.my-main'"
           :previewTheme="state.theme"
@@ -19,7 +19,7 @@
       </div>
     </div>
   </div>
-  <el-backtop title="回到顶部"></el-backtop>
+  <el-backtop title="回到顶部" target=".my-main"></el-backtop>
 </template>
 <script lang='ts' setup>
 import MdEditor from 'md-editor-v3'
@@ -42,7 +42,6 @@ const state = reactive<IState>({
   id: 'my-editor',
   text: turndown.turndown(props?.content as string)
 })
-const scrollElement: HTMLElement = document.documentElement
 </script>
 <style lang='scss' scoped>
   .my-md {
@@ -59,8 +58,8 @@ const scrollElement: HTMLElement = document.documentElement
       border-left: 1.5px solid #eee;
       .affix {
         position: sticky;
-        top: 10px;
-        max-height: calc(100vh - 20px);
+        top: 5px;
+        max-height: calc(100vh - 65px);
         overflow: auto;
         .my-catalog {
           /* height: 100%; */

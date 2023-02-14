@@ -45,6 +45,10 @@ export interface Axis<T> {
   xAxis: XYAxis<T>;
   yAxis: XYAxis<T>;
 }
+export interface ChartGap {
+  lr?: number;
+  tb?: number;
+}
 
 /**
  * 图表参数配置
@@ -56,6 +60,7 @@ export interface Option {
   legend?: Legend;
   series: Chart[];
   animation?: boolean;
+  chartGap?: ChartGap;
 }
 
 export interface PieData {

@@ -15,6 +15,8 @@ const Statistic = () => import('@/views/statistics/index.vue')
 const Painting = () => import ('@/views/painting/Painting.vue')
 const ZCharts = () => import('@/views/zcharts/index.vue')
 const Cropper = () => import('@/views/cropper/index.vue')
+const Jigsaw = () => import('@/views/jigsaw/index.vue')
+const Mirror = () => import('@/views/mirror/index.vue')
 const routes: Array<RouteRecordRaw> = [
   {
     path: '/',
@@ -30,6 +32,8 @@ const routes: Array<RouteRecordRaw> = [
       { path: '/fantastic', component: Painting },
       { path: '/z-charts', component: ZCharts },
       { path: '/cropper', component: Cropper },
+      { path: '/jigsaw', component: Jigsaw },
+      { path: '/mirror', component: Mirror },
     ],
     meta: {
       title: "文档",

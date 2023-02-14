@@ -18,7 +18,10 @@ class ZCharts extends SeriesChart implements ZCharts {
     this.initCanvas()
   }
   private createCanvas() {
+    const oldCanvas = document.getElementById('z-canvas')
+    oldCanvas && this._container.removeChild(oldCanvas)
     const canvas: HTMLCanvasElement = document.createElement('canvas')
+    canvas.id = 'z-canvas'
     this._container.appendChild(canvas)
     const ctx = canvas.getContext('2d') as CanvasRenderingContext2D
     this._ctx = ctx
@@ -121,7 +124,6 @@ class ZCharts extends SeriesChart implements ZCharts {
    */
   private pointInCanvas(event: MouseEvent) {
     const { x, y } = this.getMousePoint(event)
-    console.log(this._ctx.isPointInPath(x * this.dpr, y * this.dpr), [x * this.dpr, y * this.dpr])
     const copyData: ChartTypeData[] = JSON.parse(JSON.stringify(this.chartsDrawData))
     for (let i = 0; i < copyData.length; i++) {
       const item: ChartTypeData = copyData[i]

@@ -17,6 +17,45 @@ type Enlarge = {
   cropperBoxWidth: number,
   cropperBoxHeight: number
 }
+export const cropperProps = {
+  // 大图宽
+  width: {
+    type: Number,
+    default: () => 700
+  },
+  // 大图高
+  height: {
+    type: Number,
+    default: () => 400
+  },
+  // 图片url
+  url: String,
+  // 裁剪盒子宽
+  cropperBoxWidth: {
+    type: Number,
+    default: () => 350
+  },
+  // 裁剪盒子高
+  cropperBoxHeight: {
+    type: Number,
+    default: () => 350
+  },
+  // 裁剪图宽
+  cropperWidth: {
+    type: Number,
+    default: () => 200
+  },
+  // 裁剪图高
+  cropperHeight: {
+    type: Number,
+    default: () => 200
+  },
+  circle: Boolean,
+  mosaicDeep: {
+    type: Number,
+    default: () => 10
+  }
+}
 // 放大
 export const enlarge = (
   { _cropper, _canvas, cropperBoxWidth, cropperBoxHeight }: Enlarge,
