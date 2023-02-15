@@ -5,7 +5,7 @@ import Algorithm from './components/algorithm/Algorithm.vue'
 import { javascript } from '@codemirror/lang-javascript';
 import { oneDark } from '@codemirror/theme-one-dark';
 import LevelTable from './components/level-table/LevelTable.vue'
-import DatePicker from './components/date-picker/DatePicker.vue'
+import DatePicker from './components/date-picker/index.vue'
 export interface ComponentItem {
   name: string;
   component: RendererElement;

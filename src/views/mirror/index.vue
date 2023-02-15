@@ -7,6 +7,7 @@
           :is="item.component" 
           :code="item.code"
           @onSwitch="(val: string) => onSwitch(val, item)"
+          v-model="modelValue"
         ></component>
       </div>
       <div class="mirror-right">
@@ -59,18 +60,19 @@
   </div>
 </template>
 <script lang='ts' setup>
-  import { ref } from 'vue'
+  import { ref, watch } from 'vue'
   import { Codemirror } from 'vue-codemirror'
   import { javascript } from "@codemirror/lang-javascript"
   import { oneDark } from "@codemirror/theme-one-dark"
   import { componentsList, ComponentItem } from './components'
   import { Moon, Sunny } from '@element-plus/icons-vue'
+import moment from 'moment'
   interface Props {
     height?: string;
   }
   // 接受的参数
   const props = withDefaults(defineProps<Props>(), {
-      height: '300px'
+    height: '300px'
   })
   const tabSizeList = [
     { label: '2个空格', value: 2 },
@@ -100,6 +102,7 @@
     isChange.value = false
     code.value = ''
   }
+  const modelValue = ref(moment().format('YYYY-MM-DD'))
 </script>
 <style lang='scss' scoped>
   .mirror {
