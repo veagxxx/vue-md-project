@@ -66,7 +66,7 @@
   import { oneDark } from "@codemirror/theme-one-dark"
   import { componentsList, ComponentItem } from './components'
   import { Moon, Sunny } from '@element-plus/icons-vue'
-import moment from 'moment'
+  import moment from 'moment'
   interface Props {
     height?: string;
   }

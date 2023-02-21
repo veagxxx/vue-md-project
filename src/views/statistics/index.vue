@@ -149,9 +149,9 @@ onMounted(async () => {
     }
   }
   .purple {
-    color: #626aef;
+    color: $color-purple;
   }
   .danger {
-    color: #f56c6c;
+    color: var(--el-color-danger);
   }
 </style>

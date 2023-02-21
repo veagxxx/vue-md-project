@@ -15,13 +15,13 @@ const isLeap = (date: string): boolean => {
 const daysOfYear = (date?: string): number => isLeap(date || defaultDate.value) ? 366 : 365
 // 当前日期地球位置
 export const initEarth = (dateValue: string, or: number) => {
-  const dateStr = dateValue || defaultDate.value
   if (dateValue && moment(dateValue).isValid()) {
     defaultDate.value = dateValue
   }
+  const dateStr = defaultDate.value
   const [_, month, day]: string[] = dateStr.split('-')
   let days: number = monthsOfDay.slice(0, +month - 1).reduce((pre: number, cur: number) => pre + cur, 0) + +day
-  days = isLeap(dateStr) ? days + 1 : days
+  days = isLeap(dateStr) && +month >= 2 ? days + 1 : days
   const angle: number = days / daysOfYear(dateValue) * Math.PI * 2
   return {
     x: or * Math.sin(angle),

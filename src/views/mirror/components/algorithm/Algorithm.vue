@@ -31,7 +31,9 @@
   const props = defineProps({
     code: String
   })
-  const emit = defineEmits(['onSwitch'])
+  const emit = defineEmits<{
+    (event: 'onSwitch', value: string | undefined): void
+  }>()
   const currentQst = ref<Question | null>(questions[0] || null)
   // 切换上一题
   const onSwitchPrevious = (id: number | undefined) => {

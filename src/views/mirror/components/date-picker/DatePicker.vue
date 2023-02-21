@@ -18,7 +18,9 @@
       default: () => 350
     }
   })
-  const emit = defineEmits(['updateDate'])
+  const emit = defineEmits<{
+    (event: 'updateDate', value: string): void
+  }>()
   const scale: number = 2 // 缩放比
   const orbitRadius: number = 250 // 轨道半径
   interface PickerCanvas {
@@ -75,11 +77,15 @@
     picker.canvas?.addEventListener('mouseup', onStopMoving)
     picker.canvas?.addEventListener('mouseleave', onStopMoving)
   }
+  const clickPoint = (e: MouseEvent): number[] => {
+    const { left, top } = picker.canvas!.getBoundingClientRect()
+    const point: number[] = [(e.pageX - left) * scale, (e.pageY - top) * scale]
+    return point
+  }
   // 画布点击
   const onCanvasClick = (e: MouseEvent) => {
-    const { left, top } = picker.canvas!.getBoundingClientRect()
     const center: number[] = [earth.x, earth.y]
-    const point: number[] = [(e.pageX - left) * scale, (e.pageY - top) * scale]
+    const point: number[] = clickPoint(e)
     earth.hasSelected = pointInCircle(center, earth.radius, point)
   }
 
@@ -96,8 +102,7 @@
   // 移动地球
   const onEarthMove = (e: MouseEvent) => {
     if (earth.hasSelected) {
-      const { left, top } = picker.canvas!.getBoundingClientRect()
-      const point: number[] = [(e.pageX - left) * scale, (e.pageY - top) * scale]
+      const point: number[] = clickPoint(e)
       calcEarthPosition(point)
       redraw()
     }

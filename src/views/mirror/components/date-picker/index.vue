@@ -6,33 +6,35 @@
       trigger="click"
     >
       <template #reference>
-        <input 
-          class="picker-inner_input" 
-          :value="modelValue" 
-          @input="(e: any) => onInput(e.target.value)" 
-          :placeholder="placeholder"
-          :style="{ width: width }"
-        />
+        <div class="picker-input__wrapper">
+          <input 
+            class="picker-inner_input" 
+            :value="modelValue" 
+            @input="(e: any) => onInput(e.target.value)" 
+            :placeholder="placeholder"
+            :style="{ width: width }"
+          />
+          <span class="picker-input_prefix">
+            <span class="prefix-icon">
+              <el-icon><Calendar/></el-icon>
+            </span>
+          </span>
+          <span 
+            class="picker-input_suffix" 
+            :class="modelValue && showClose ? 'show-close' : ''"
+            @click.stop="clearValue"
+          >
+            <span class="prefix-icon">
+              <el-icon><CircleCloseFilled/></el-icon>
+            </span>
+          </span>
+        </div>
       </template>
       <DatePicker 
         :dateValue="modelValue" 
         @updateDate="onUpdateDate"
       />
     </el-popover>
-    <span class="picker-input_prefix">
-      <span class="prefix-icon">
-        <el-icon><Calendar/></el-icon>
-      </span>
-    </span>
-    <span 
-      class="picker-input_suffix" 
-      :class="modelValue && showClose ? 'show-close' : ''"
-      @click="clearValue"
-    >
-      <span class="prefix-icon">
-        <el-icon><CircleCloseFilled/></el-icon>
-      </span>
-    </span>
   </div>
 </template>
 <script lang='ts' setup>
@@ -79,14 +81,13 @@
     vertical-align: middle;
     .picker-inner_input {
       outline: none;
-      cursor: pointer;
       height: $picker-height;
       border: 1px solid #ccc;
       border-radius: 3px;
       padding-left: 30px;
       padding-right: 12px;
       &:focus {
-        border-color: #36ad6a;
+        border-color: var(--el-color-primary);
       }
       &:hover .picker-input_suffix {
         display: 'flex';

@@ -78,16 +78,16 @@
     }
   }
   .purple {
-    color: #626aef;
+    color: $color-purple;
   }
   .danger {
-    color: #f56c6c;
+    color: var(--el-color-danger);
   }
   .warning {
-    color: #eebe77;
+    color: var(--el-color-warning);
   }
   .hotpink {
-    color: hotpink;
+    color: $color-hotpink;
   }
   .selected {
     background: #eee;
