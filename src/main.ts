@@ -10,10 +10,13 @@ import 'element-plus/theme-chalk/src/message-box.scss'
 import 'github-markdown-css'
 import MdEditor from 'md-editor-v3'
 import 'md-editor-v3/lib/style.css';
+import 'virtual:svg-icons-register';
+import SvgIcon from '@/components/svg-icon/index.vue';
 const app = createApp(App)
 for (const [key, component] of Object.entries(ElementPlusIconsVue)) {
   app.component(key, component)
 }
 app.component('MdEditor', MdEditor)
+app.component('SvgIcon', SvgIcon)
 app.use(router).mount('#app')
 

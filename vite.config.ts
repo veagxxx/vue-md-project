@@ -6,6 +6,7 @@ import Components from 'unplugin-vue-components/vite'
 import { ElementPlusResolver } from 'unplugin-vue-components/resolvers'
 // import commonjsExternals from 'vite-plugin-commonjs-externals'
 // import ElementPlus from 'unplugin-element-plus/vite'
+import { createSvgIconsPlugin } from 'vite-plugin-svg-icons'
 const md = require('vite-plugin-markdown')
 
 // https://vitejs.dev/config/
@@ -26,6 +27,11 @@ export default defineConfig({
         ElementPlusResolver({ importStyle: "sass" }),
       ],
     }),
+    // svg-icon
+    createSvgIconsPlugin({
+      // 指定文件路径
+      iconDirs: [path.resolve(process.cwd(), 'src/assets/icons')]
+    })
     // commonjsExternals({
     //   externals: ['fs'] //这里
     // })

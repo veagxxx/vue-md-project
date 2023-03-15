@@ -26,6 +26,7 @@ declare module '@vue/runtime-core' {
     ElOption: typeof import('element-plus/es')['ElOption']
     ElPagination: typeof import('element-plus/es')['ElPagination']
     ElPopover: typeof import('element-plus/es')['ElPopover']
+    ElScrollbar: typeof import('element-plus/es')['ElScrollbar']
     ElSelect: typeof import('element-plus/es')['ElSelect']
     ElSlider: typeof import('element-plus/es')['ElSlider']
     ElSubMenu: typeof import('element-plus/es')['ElSubMenu']
@@ -36,11 +37,14 @@ declare module '@vue/runtime-core' {
     ElTooltip: typeof import('element-plus/es')['ElTooltip']
     ElUpload: typeof import('element-plus/es')['ElUpload']
     Github: typeof import('./src/components/icons/Github.vue')['default']
+    Gobang: typeof import('./src/components/icons/Gobang.vue')['default']
     LineSize: typeof import('./src/components/icons/LineSize.vue')['default']
+    Mine: typeof import('./src/components/icons/Mine.vue')['default']
     RouterLink: typeof import('vue-router')['RouterLink']
     RouterView: typeof import('vue-router')['RouterView']
     Shape: typeof import('./src/components/icons/Shape.vue')['default']
     Skeleton: typeof import('./src/components/icons/Skeleton.vue')['default']
+    SvgIcon: typeof import('./src/components/svg-icon/index.vue')['default']
     TooltipButton: typeof import('./src/components/TooltipButton.vue')['default']
   }
 

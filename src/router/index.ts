@@ -17,6 +17,9 @@ const ZCharts = () => import('@/views/zcharts/index.vue')
 const Cropper = () => import('@/views/cropper/index.vue')
 const Jigsaw = () => import('@/views/jigsaw/index.vue')
 const Mirror = () => import('@/views/mirror/index.vue')
+const Games = () => import('@/views/games/index.vue')
+const Gobang = () => import('@/views/games/gobang/index.vue')
+const Mine = () => import('@/views/games/mine/index.vue')
 const routes: Array<RouteRecordRaw> = [
   {
     path: '/',
@@ -34,6 +37,23 @@ const routes: Array<RouteRecordRaw> = [
       { path: '/cropper', component: Cropper },
       { path: '/jigsaw', component: Jigsaw },
       { path: '/mirror', component: Mirror },
+      { 
+        path: '/games',
+        name: 'Games',
+        component: Games,
+        redirect: {
+          name: 'Gobang'
+        },
+        children: [{
+          path: 'gobang',
+          name: 'Gobang',
+          component: Gobang,
+        },{
+          path: 'mine',
+          name: 'Mine',
+          component: Mine,
+        }]
+      },
     ],
     meta: {
       title: "文档",

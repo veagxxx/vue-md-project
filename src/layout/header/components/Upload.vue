@@ -53,7 +53,7 @@ import type { UploadInstance, UploadProps, UploadRawFile } from 'element-plus'
 import { reactive, ref } from 'vue';
 // import { uploadMdFile } from '@/utils/upload'
 // import axios from 'axios'
-import { checkRouterName, checkRouterPath } from '@/hooks'
+import { checkRouterName, checkRouterPath } from '@/utils'
 import { IRouter } from '@/types';
 import { uploadMdFile } from '@/controller/FsController'
 import moment from 'moment'

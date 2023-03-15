@@ -30,6 +30,7 @@
         <el-menu-item index="/cropper">裁剪</el-menu-item>
         <el-menu-item index="/jigsaw">拼图</el-menu-item>
         <el-menu-item index="/mirror">组件</el-menu-item>
+        <el-menu-item index="/games">游戏</el-menu-item>
       </el-menu>
       <div class="icon-item" @click="handleOpenUpload">
         <span>上传</span>

@@ -2,6 +2,7 @@ import { IParam } from "@/types";
 import axios from "axios";
 import { ElMessage } from "element-plus";
 import http from '@/utils/axios'
+const apiPath = 'http://localhost:3000/'
 // 上传 .md 文件
 export const uploadMdFile = (params: IParam) => {
   const { fileString, fileName, routerName, routerPath } = params
@@ -23,7 +24,7 @@ export const uploadMdFile = (params: IParam) => {
  */
 export const getMenus = () => {
   return new Promise((resolve, reject) => {
-    axios.get('src/menus/path.json')
+    axios.get(`${apiPath}src/menus/path.json`)
     .then(res => {
       resolve(res)
     })

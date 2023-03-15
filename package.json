@@ -30,6 +30,7 @@
     "turndown": "^7.1.1",
     "vite-plugin-commonjs-externals": "^0.1.1",
     "vite-plugin-markdown": "^2.0.2",
+    "vite-plugin-svg-icons": "^2.0.1",
     "vue": "^3.2.25",
     "vue-codemirror": "^6.1.1",
     "vue-markdown-loader": "^2.5.0",
